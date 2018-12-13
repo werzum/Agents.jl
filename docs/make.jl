@@ -18,4 +18,8 @@ makedocs(
 
 deploydocs(
 	    repo = "github.com/kavir1698/Agents.jl.git",
+      julia = "1.0",
+      target = "build",
+      deps = nothing,
+      make = nothing
    )
