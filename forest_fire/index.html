@@ -76,7 +76,7 @@ end</code></pre><p>Note that to keep the simulation results repeatable, we inclu
   end
 end
 </code></pre><p>Because an agent step function is necessary for the built-in <code>step!</code> methods, we make a dummy agent step function that accepts two arguments (one for the agent object and one for the model object):</p><pre><code class="language-julia">function dummy_agent_step(a, b)  # because we do not need it, but it is required by the step! function
-end</code></pre><p>That was all before we run the model. </p><pre><code class="language-julia"># create the model
+end</code></pre><p>That is all before we run the model.</p><pre><code class="language-julia"># create the model
 forest = model_initiation(f=0.1, d=0.8, p=0.1, griddims=(20, 20, 1), 2)
 
 # choose which agent properties you want to collect
