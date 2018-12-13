@@ -120,7 +120,7 @@ That is all before we run the model.
 
 ```julia
 # create the model
-forest = model_initiation(f=0.1, d=0.8, p=0.1, griddims=(20, 20, 1), 2)
+forest = model_initiation(f=0.1, d=0.8, p=0.1, griddims=(20, 20, 1), seed=2)
 
 # choose which agent properties you want to collect
 agent_properties = [:status]
