@@ -57,10 +57,34 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "forest_fire/#",
+    "page": "Forest fire",
+    "title": "Forest fire",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "forest_fire/#Forest-fire-model-1",
+    "page": "Forest fire",
+    "title": "Forest fire model",
+    "category": "section",
+    "text": "The model is defined as a cellular automaton on a grid with Ld cells. L is the side length of the grid and d is its dimension. A cell can be empty, occupied by a tree, or burning. The model of Drossel and Schwabl (1992) is defined by four rules which are executed simultaneously: A burning cell turns into an empty cell\nA tree will burn if at least one neighbor is burning\nA tree ignites with probability f even if no neighbor is burning\nAn empty space fills with a tree with probability pThe above explanation is from Wikipedia. Given that, we can build our model.The complete code of this example is in the examples/forest_fire.jl file on the Github repository.As usual, we define the agent, model, and space types. \nmutable struct Tree <: AbstractAgent\n  id::Integer\n  pos::Tuple{Integer, Integer, Integer}\n  status::Bool  # true is green and false is burning\nend\n\nmutable struct Forest <: AbstractModel\n  space::AbstractSpace\n  agents::Array{AbstractAgent}\n  scheduler::Function\n  f::Float64  # probability that a tree will ignite\n  d::Float64  # forest density\n  p::Float64  # probability that a tree will grow in an empty space\nend\n\nmutable struct MyGrid <: AbstractSpace\n  dimensions::Tuple{Integer, Integer, Integer}\n  space\n  agent_positions::Array  # an array of arrays for each grid node\nend\nThe agent type Tree has three fields: id and pos, which have to be there for any model, and a status field that we introduce for this specific mode. The status field will hold true for a green tree and false for a burning one. All model parameters go to the model type Forest in addition to the compulsory space, agents, and scheduler fields. The space type has the three minimum fields.We can now instantiate the model. It is a good idea to put the instantiate lines in a function so that it will be easy to restart the model and change its parameters.:function model_initiation(;f, d, p, griddims, seed)\n  Random.seed!(seed)\n  # initialize the model\n  # we start the model without creating the agents first\n  agent_positions = [Array{Integer}(undef, 0) for i in 1:gridsize(griddims)]\n  mygrid = MyGrid(griddims, grid(griddims, true, true), agent_positions)\n  forest = Forest(mygrid, Array{Tree}(undef, 0), random_activation, f, d, p)\n\n  # create and add trees to each node with probability d, which determines the density of the forest\n  for node in 1:gridsize(forest.space.dimensions)\n    pp = rand()\n    if pp <= forest.d\n      tree = Tree(node, (1,1,1), true)\n      add_agent_to_grid!(tree, node, forest)\n      push!(forest.agents, tree)\n    end\n  end\n  return forest\nendNote that to keep the simulation results repeatable, we include Random.seed!(seed), so that the random number generator start from the same position everytime.We should now make a step function. It maybe easier to randomly go through every node on the grid and decide what happens to the node depending on its state. If its empty, add a tree with probability p, if it has a burning tree, remove it from the node, and if it has a green tree with a burning neighbor, burn the tree. Doing this requires a step function for the model, not every single agent. A model step function only accepts a model type as its argument.function forest_step!(forest)\n  shuffled_nodes = shuffle(1:gridsize(forest.space.dimensions))\n  for node in shuffled_nodes  # randomly go through the cells and \n    if length(forest.space.agent_positions[node]) == 0  # the cell is empty, maybe a tree grows here?\n      p = rand()\n      if p <= forest.p\n        treeid = forest.agents[end].id +1\n        tree = Tree(treeid, (1,1,1), true)\n        add_agent_to_grid!(tree, node, forest)\n        push!(forest.agents, tree)\n      end\n    else\n      treeid = forest.space.agent_positions[node][1]  # id of the tree on this cell\n      tree = id_to_agent(treeid, forest)  # the tree on this cell\n      if tree.status == false  # if it is has been burning, remove it.\n        kill_agent!(tree, forest)\n      else\n        f = rand()\n        if f <= forest.f  # the tree ignites on fire\n          tree.status = false\n        else  # if any neighbor is on fire, set this tree on fire too\n          neighbor_cells = node_neighbors(tree, forest)\n          for cell in neighbor_cells\n            treeid = get_node_contents(cell, forest)\n            if length(treeid) != 0  # the cell is not empty\n              treen = id_to_agent(treeid[1], forest)\n              if treen.status == false\n                tree.status = false\n                break\n              end\n            end\n          end\n        end\n      end\n    end\n  end\nend\nBecause an agent step function is necessary for the built-in step! methods, we make a dummy agent step function that accepts two arguments (one for the agent object and one for the model object):function dummy_agent_step(a, b)  # because we do not need it, but it is required by the step! function\nendThat was all before we run the model. # create the model\nforest = model_initiation(f=0.1, d=0.8, p=0.1, griddims=(20, 20, 1), 2)\n\n# choose which agent properties you want to collect\nagent_properties = [:status]\n\n# what functions to apply to the chosen agent properties before collecting them. `length` will show the number of trees and `count` the number of green trees.\naggregators = [length, count]\n\n# at which steps to collect the data\nsteps_to_collect_data = collect(1:100)\n\n# Run the model for 100 steps\ndata = step!(dummy_agent_step, forest_step!, forest, 100, agent_properties, aggregators, steps_to_collect_data)\n\n# explore data visually\nvisualize_data(data)\n\n# Optionally Running batch\nforest = model_initiation(f=0.1, d=0.8, p=0.1, griddims=(20, 20, 1), 2)\ndata = batchrunner(dummy_agent_step, forest_step!, forest, 100, agent_properties, aggregators, steps_to_collect_data, 10)\n\n# Optionally write the results to file\nwrite_to_file(df=data, filename=\"forest_model.csv\")"
+},
+
+{
     "location": "builtin_functions/#",
     "page": "Built-in funtions",
     "title": "Built-in funtions",
     "category": "page",
+    "text": ""
+},
+
+{
+    "location": "builtin_functions/#Built-in-function-1",
+    "page": "Built-in funtions",
+    "title": "Built-in function",
+    "category": "section",
     "text": ""
 },
 

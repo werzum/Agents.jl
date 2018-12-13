@@ -9,6 +9,7 @@ makedocs(
         "Introduction" => "index.md",
         "Examples" => [
           "Boltzmann wealth distribution" => "boltzmann_example01.md",
+          "Forest fire" => "forest_fire.md"
         ],
         "Built-in funtions" => "builtin_functions.md"
     ]
