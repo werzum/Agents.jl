@@ -189,7 +189,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Built-in funtions",
     "title": "Agents.get_node_contents",
     "category": "function",
-    "text": "get_node_contents(agent::AbstractAgent, model::AbstractModel)\n\nReturns other agents\' ids in the same node as the agent.\n\n\n\n\n\nget_node_contents(coords::Tuple, model::AbstractModel)\n\nReturns the id of agents in the node at coords\n\n\n\n\n\n"
+    "text": "get_node_contents(agent::AbstractAgent, model::AbstractModel)\n\nReturns all agents\' ids in the same node as the agent.\n\n\n\n\n\nget_node_contents(coords::Tuple, model::AbstractModel)\n\nReturns the id of agents in the node at coords\n\n\n\n\n\n"
 },
 
 {
