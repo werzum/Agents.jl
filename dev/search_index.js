@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Introduction",
     "title": "Installation",
     "category": "section",
-    "text": "Currently, the package is not added to Julia\'s package list, therefore, install is by following command:]add https://github.com/kavir1698/Agents.jl.git"
+    "text": "Currently, the package is not added to Julia\'s package list, therefore, install it using this command:]add https://github.com/kavir1698/Agents.jl.git"
 },
 
 {
