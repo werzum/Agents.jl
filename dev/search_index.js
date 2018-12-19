@@ -113,11 +113,139 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "builtin_functions/#Agents.grid",
+    "page": "Built-in funtions",
+    "title": "Agents.grid",
+    "category": "function",
+    "text": "grid(x::Integer, y::Integer, z::Integer, periodic=false, triangle=false)\n\nReturn a grid based on its dimensions. x, y, and z are the dimensions of the grid. If all dimensions are 1, it will return a 0D space, where all agents are in the same position. If x is more than 1, but y and z are 1, it will return a 1D grid. If x and y are more than 1, and z=1, it will return a 2D regular grid.\n\nperiodic=true will create toroidal grids.\ntriangle=true works when the dimensions of the grid are 2D. It will return a regular grid in which each node is at most connected to eight neighbors. If false, each node will be at most connected to four neighbors.\n\n\n\n\n\ngrid(dims::Tuple{Integer, Integer, Integer}, periodic=false, triangle=false)\n\nReturn a grid based on its dimensions. x, y, and z are the dimensions of the grid. If all dimensions are 1, it will return a 0D space, where all agents are in the same position. If x is more than 1, but y and z are 1, it will return a 1D grid. If x and y are more than 1, and z=1, it will return a 2D regular grid.\n\nperiodic=true will create toroidal grids.\ntriangle=true will return a regular grid in which each node is at most connected to eight neighbors in one plane. If false, each node will be at most connected to four neighbors.\n\n\n\n\n\ngrid(dims::Tuple{Integer, Integer}, periodic=false, triangle=false)\n\nReturn a grid based on its dimensions. x, y are the dimensions of the grid. If all dimensions are 1, it will return a 0D space, where all agents are in the same position. If x is more than 1, but y is 1, it will return a 1D grid.\n\nperiodic=true will create toroidal grids.\ntriangle=true will return a regular grid in which each node is at most connected to eight neighbors in one plane. If false, each node will be at most connected to four neighbors.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.gridsize",
+    "page": "Built-in funtions",
+    "title": "Agents.gridsize",
+    "category": "function",
+    "text": "gridsize(dims::Tuple{Integer, Integer, Integer})\n\nReturns the size of a grid with dimenstions dims.\n\n\n\n\n\ngridsize(dims::Tuple{Integer, Integer})\n\nReturns the size of a grid with dimenstions dims.\n\n\n\n\n\ngridsize(model::AbstractModel)\n\nReturns the size of the grid in the model\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.Node_iter",
+    "page": "Built-in funtions",
+    "title": "Agents.Node_iter",
+    "category": "type",
+    "text": "Node_iter(model::AbstractModel)\n\nAn iterator that returns node coordinates, if the graph is a grid, or otherwise node numbers, and the agents in each node.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.add_agent!",
+    "page": "Built-in funtions",
+    "title": "Agents.add_agent!",
+    "category": "function",
+    "text": "add_agent!(agent::AbstractAgent, pos::Tuple{Integer, Integer, Integer}, model::AbstractModel)\n\nAdds the agent to the pos in the space and to the list of agents. pos is tuple of x, y, and z (only if its a 3D space) coordinates of the grid node. If pos is not given, the agent is added to a random position.\n\nThis function is for positioning agents on the grid for the first time.\n\n\n\n\n\nadd_agent!(agent::AbstractAgent, pos::Integer, model::AbstractModel)\n\nAdds the agent to the pos in the space and to the list of agents. pos is the node number of the space. If pos is not given, the agent is added to a random position.\n\nThis function is for positioning agents on the grid for the first time.\n\n\n\n\n\nadd_agent!(agent::AbstractAgent, model::AbstractModel)\n\nAdds agent to a random node in the space and to the agent to the list of agents. \n\nReturns the agent\'s new position.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.move_agent!",
+    "page": "Built-in funtions",
+    "title": "Agents.move_agent!",
+    "category": "function",
+    "text": "move_agent!(agent::AbstractAgent, pos::Tuple, model::AbstractModel)\n\nAdds agentID to a new position in the grid and removes it from the old position. Also updates the agent to represent the new position. pos is tuple of x, y, z (only if its a 3D space) coordinates of the grid node. If pos is not given, the agent is moved to a random position on the grid. \n\n\n\n\n\nmove_agent!(agent::AbstractAgent, pos::Integer, model::AbstractModel)\n\nAdds agentID to a new position in the grid and removes it from the old position. Also updates the agent to represent the new position. pos is an integer showing the number of the node on the grid node. If pos is not given, the agent is moved to a random position on the grid.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.add_agent_single!",
+    "page": "Built-in funtions",
+    "title": "Agents.add_agent_single!",
+    "category": "function",
+    "text": "add_agent_single!(agent::AbstractAgent, model::AbstractModel)\n\nAdds agent to a random node in the space while respecting a maximum one agent per node. It does not do anything if there are no empty nodes.\n\nReturns the agent\'s new position.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.move_agent_single!",
+    "page": "Built-in funtions",
+    "title": "Agents.move_agent_single!",
+    "category": "function",
+    "text": "move_agent_single!(agent::AbstractAgent, model::AbstractModel)\n\nMoves agent to a random nodes on the grid while respecting a maximum of one agent per node. If there are no empty nodes, the agent wont move.\n\nReturn the agent\'s new position.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.empty_cells",
+    "page": "Built-in funtions",
+    "title": "Agents.empty_cells",
+    "category": "function",
+    "text": "empty_cells(model::AbstractArray)\n\nReturns true if there are empty cells, otherwise returns false.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.pick_empty",
+    "page": "Built-in funtions",
+    "title": "Agents.pick_empty",
+    "category": "function",
+    "text": "pick_empty(model)\n\nReturns the ID of a random empty cell. Returns 0 if there are no empty cells \n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.find_empty_nodes_coords",
+    "page": "Built-in funtions",
+    "title": "Agents.find_empty_nodes_coords",
+    "category": "function",
+    "text": "find_empty_nodes_coords(model::AbstractModel)\n\nReturns the coordinates of empty nodes on the model grid.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.find_empty_nodes",
+    "page": "Built-in funtions",
+    "title": "Agents.find_empty_nodes",
+    "category": "function",
+    "text": "find_empty_nodes(model::AbstractModel)\n\nReturns the IDs of empty nodes on the model space.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.coord_to_vertex",
+    "page": "Built-in funtions",
+    "title": "Agents.coord_to_vertex",
+    "category": "function",
+    "text": "coord_to_vertex(coord::Tuple{Integer, Integer, Integer}, model::AbstractModel)\n\nReturns the node number from x, y, z coordinates.\n\n\n\n\n\ncoord_to_vertex(coord::Tuple{Integer, Integer, Integer}, dims::Tuple{Integer, Integer, Integer})\n\nReturns node number from x, y, z coordinates.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.vertex_to_coord",
+    "page": "Built-in funtions",
+    "title": "Agents.vertex_to_coord",
+    "category": "function",
+    "text": "vertex_to_coord(vertex::Integer, model::AbstractModel)\n\nReturns the coordinates of a node given its number on the graph.\n\n\n\n\n\nvertex_to_coord(vertex::Integer, dims::Tuple{Integer, Integer, Integer})\n\nReturns the coordinates of a node given its number on a 3D grid.\n\n\n\n\n\nvertex_to_coord(vertex::Integer, dims::Tuple{Integer,Integer})\n\nReturns the coordinates of a node given its number on a 2D grid.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.get_node_contents",
+    "page": "Built-in funtions",
+    "title": "Agents.get_node_contents",
+    "category": "function",
+    "text": "get_node_contents(agent::AbstractAgent, model::AbstractModel)\n\nReturns all agents\' ids in the same node as the agent.\n\n\n\n\n\nget_node_contents(coords::Tuple, model::AbstractModel)\n\nReturns the id of agents in the node at coords\n\n\n\n\n\nget_node_contents(node_number::Integer, model::AbstractModel)\n\nReturns the id of agents in the node at node_number\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.id_to_agent",
+    "page": "Built-in funtions",
+    "title": "Agents.id_to_agent",
+    "category": "function",
+    "text": "id_to_agent(id::Integer, model::AbstractModel)\n\nReturns an agent given its ID.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.node_neighbors",
+    "page": "Built-in funtions",
+    "title": "Agents.node_neighbors",
+    "category": "function",
+    "text": "node_neighbors(agent::AbstractAgent, model::AbstractModel)\n\nReturns neighboring node coords/numbers of the node on which the agent resides. If agent pos is recorded an integer, the function will return node numbers of the neighbors. If the agent pos is a tuple, the function will return the coordinates of neighbors on a grid.\n\n\n\n\n\nnode_neighbors(node_number::Integer, model::AbstractModel)\n\nReturns neighboring node IDs of the node with node_number.\n\n\n\n\n\nnode_neighbors(node_coord::Tuple, model::AbstractModel)\n\nReturns neighboring node coords of the node with node_coord.\n\n\n\n\n\nnode_neighbors(node_number::Integer, model::AbstractModel, radius::Integer)\n\nReturns a list of neighboring cells to the node node_number within the radius.\n\n\n\n\n\n"
+},
+
+{
     "location": "builtin_functions/#Space-functions-1",
     "page": "Built-in funtions",
     "title": "Space functions",
     "category": "section",
-    "text": "grid\r\ngridsize\r\nGraph_iter\r\nadd_agent!\r\nmove_agent!\r\nadd_agent_single!\r\nmove_agent_single!\r\nempty_cells\r\npick_empty\r\nfind_empty_nodes_coords\r\nfind_empty_nodes\r\ncoord_to_vertex\r\nvertex_to_coord\r\nget_node_contents\r\nid_to_agent\r\nnode_neighbors"
+    "text": "grid\r\ngridsize\r\nNode_iter\r\nadd_agent!\r\nmove_agent!\r\nadd_agent_single!\r\nmove_agent_single!\r\nempty_cells\r\npick_empty\r\nfind_empty_nodes_coords\r\nfind_empty_nodes\r\ncoord_to_vertex\r\nvertex_to_coord\r\nget_node_contents\r\nid_to_agent\r\nnode_neighbors"
 },
 
 {
