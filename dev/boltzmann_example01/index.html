@@ -44,6 +44,6 @@ end</code></pre><p>The space type has to have the <code>dimensions</code>, <code
   return model
 end
 
-model = instantiate_model(numagents=100, griddims=(5,5,1))</code></pre><p>We should now add agents to random positions on the grid. The <code>add_agent_to_grid!</code>  function updates the <code>agent_positions</code> field of <code>model.space</code>. It is possible to add agents to specific nodes by specifying a node number of x,y,z coordinates (see <a href="../builtin_functions/#Space-functions-1">Space functions</a> for more details).</p><pre><code class="language-julia">for agent in model.agents
+model = instantiate_model(numagents=100, griddims=(5,5,1))</code></pre><p>We should now add agents to random positions on the grid. The <code>add_agent!</code>  function updates the <code>agent_positions</code> field of <code>model.space</code>. It is possible to add agents to specific nodes by specifying a node number of x,y,z coordinates (see <a href="../builtin_functions/#Space-functions-1">Space functions</a> for more details).</p><pre><code class="language-julia">for agent in model.agents
   add_agent!(agent, model)
 end</code></pre><p>The model can be run as we did previously.</p><footer><hr/><a class="previous" href="../"><span class="direction">Previous</span><span class="title">Introduction</span></a><a class="next" href="../forest_fire/"><span class="direction">Next</span><span class="title">Forest fire</span></a></footer></article></body></html>
