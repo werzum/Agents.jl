@@ -93,7 +93,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Built-in funtions",
     "title": "Agents.as_added",
     "category": "function",
-    "text": "as_added(model::AbstractModel)\n\nActivates all agents at each step as they have been added to the model.\n\n\n\n\n\n"
+    "text": "as_added(model::AbstractModel)\n\nActivates agents at each step in the same order as they have been added to the model.\n\n\n\n\n\n"
 },
 
 {
@@ -101,7 +101,15 @@ var documenterSearchIndex = {"docs": [
     "page": "Built-in funtions",
     "title": "Agents.random_activation",
     "category": "function",
-    "text": "random_activation(model::AbstractModel)\n\nActivates all agents randomly at each step.\n\n\n\n\n\n"
+    "text": "random_activation(model::AbstractModel)\n\nActivates agents once per step in a random order.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.partial_activation",
+    "page": "Built-in funtions",
+    "title": "Agents.partial_activation",
+    "category": "function",
+    "text": "partial_activation(model::AbstractModel)\n\nAt each step, activates only activation_prob number of randomly chosen of individuals with a activation_prob probability. activation_prob should be a field in the model and between 0 and 1.\n\n\n\n\n\n"
 },
 
 {
@@ -109,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Built-in funtions",
     "title": "Scheduler functions",
     "category": "section",
-    "text": "as_added\r\nrandom_activation"
+    "text": "as_added\r\nrandom_activation\r\npartial_activation"
 },
 
 {
