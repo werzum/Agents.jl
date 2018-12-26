@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Introduction",
     "title": "Agents.jl Documentation",
     "category": "section",
-    "text": "Agents.jl is a Julia framework for an agent-based modeling (ABM). It provides a structure and components for quickly implementing agent-based models, run them in batch, collect data, and visualize them. To that end, it provides the following functionalities: Default grids to run the simulation, including simple or toroidal 1D grids, simple or toroidal regular rectangular and triangular 2D grids, and simple or toroidal regular cubic 3D grids with rectangular or triangle connections. More space structure are to be implemented include arbitrary random networks.\nRunning the simulations in parallel on multiple cores or on clusters. (This is not ready yet)\nAutomatic data collection in a DataFrame at desired intervals.\nExploring the simulation results interactively in Data Voyegar 2.\nBatch running and batch data collection\nVisualize agent distributions on gridsJulia is a language that is especially suitable for ABMs, because a) it runs fast, b) it is easy to express your ideas in and quick to write, and c) it has rich and easy-to-use packages for data analysis.Agents.jl is lightweight and modular. It has a short learning curve, and allows one to extend its capabilities and express complicated modeling scenarios. Agents.jl is inspired by Mesa framework for Python.For a quick tutorial see the example models."
+    "text": "Agents.jl is a Julia framework for an agent-based modeling (ABM). It provides a structure and components for quickly implementing agent-based models, run them in batch, collect data, and visualize them. To that end, it provides the following functionalities: Default grids to run the simulation, including simple or toroidal 1D grids, simple or toroidal regular rectangular and triangular 2D grids, and simple or toroidal regular cubic 3D grids with von Neumann or Moore neighborhoods. More space structure are to be implemented include arbitrary random networks.\nRunning the simulations in parallel on multiple cores or on clusters. (This is not ready yet)\nAutomatic data collection in a DataFrame at desired intervals.\nExploring the simulation results interactively in Data Voyegar 2.\nBatch running and batch data collection\nVisualize agent distributions on gridsJulia is a language that is especially suitable for ABMs, because a) it runs fast, b) it is easy to express your ideas in and quick to write, and c) it has rich and easy-to-use packages for data analysis.Agents.jl is lightweight and modular. It has a short learning curve, and allows one to extend its capabilities and express complicated modeling scenarios. Agents.jl is inspired by Mesa framework for Python.For a quick tutorial see the example models."
 },
 
 {
@@ -125,7 +125,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Built-in funtions",
     "title": "Agents.grid",
     "category": "function",
-    "text": "grid(x::Integer, y::Integer, z::Integer, periodic=false, triangle=false)\n\nReturn a grid based on its dimensions. x, y, and z are the dimensions of the grid. If all dimensions are 1, it will return a 0D space, where all agents are in the same position. If x is more than 1, but y and z are 1, it will return a 1D grid. If x and y are more than 1, and z=1, it will return a 2D regular grid.\n\nperiodic=true will create toroidal grids.\ntriangle=true works when the dimensions of the grid are 2D. It will return a regular grid in which each node is at most connected to eight neighbors. If false, each node will be at most connected to four neighbors.\n\n\n\n\n\ngrid(dims::Tuple{Integer, Integer, Integer}, periodic=false, triangle=false)\n\nReturn a grid based on its dimensions. x, y, and z are the dimensions of the grid. If all dimensions are 1, it will return a 0D space, where all agents are in the same position. If x is more than 1, but y and z are 1, it will return a 1D grid. If x and y are more than 1, and z=1, it will return a 2D regular grid.\n\nperiodic=true will create toroidal grids.\ntriangle=true will return a regular grid in which each node is at most connected to eight neighbors in one plane. If false, each node will be at most connected to four neighbors.\n\n\n\n\n\ngrid(dims::Tuple{Integer, Integer}, periodic=false, triangle=false)\n\nReturn a grid based on its dimensions. x, y are the dimensions of the grid. If all dimensions are 1, it will return a 0D space, where all agents are in the same position. If x is more than 1, but y is 1, it will return a 1D grid.\n\nperiodic=true will create toroidal grids.\ntriangle=true will return a regular grid in which each node is at most connected to eight neighbors in one plane. If false, each node will be at most connected to four neighbors.\n\n\n\n\n\n"
+    "text": "grid(x::Integer, y::Integer, z::Integer, periodic=false, Moore=false)\n\nReturn a grid based on its dimensions. x, y, and z are the dimensions of the grid. If all dimensions are 1, it will return a 0D space, where all agents are in the same position. If x is more than 1, but y and z are 1, it will return a 1D grid. If x and y are more than 1, and z=1, it will return a 2D regular grid.\n\nperiodic=true will create toroidal grids.\nMoore=true will return a regular grid in which each node is connected to its diagonal neighbors. If false, each node will only connect to its orthogonal neighbors.\n\n\n\n\n\ngrid(dims::Tuple{Integer, Integer, Integer}, periodic=false, Moore=false)\n\nReturn a grid based on its dimensions. x, y, and z are the dimensions of the grid. If all dimensions are 1, it will return a 0D space, where all agents are in the same position. If x is more than 1, but y and z are 1, it will return a 1D grid. If x and y are more than 1, and z=1, it will return a 2D regular grid.\n\nperiodic=true will create toroidal grids.\nMoore=true will return a regular grid in which each node is connected to its diagonal neighbors. If false, each node will only connect to its orthogonal neighbors.\n\n\n\n\n\ngrid(dims::Tuple{Integer, Integer}, periodic=false, Moore=false)\n\nReturn a grid based on its dimensions. x, y are the dimensions of the grid. If all dimensions are 1, it will return a 0D space, where all agents are in the same position. If x is more than 1, but y is 1, it will return a 1D grid.\n\nperiodic=true will create toroidal grids.\nMoore=true will return a regular grid in which each node is connected to its diagonal neighbors. If false, each node will only connect to its orthogonal neighbors.\n\n\n\n\n\n"
 },
 
 {
@@ -177,11 +177,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "builtin_functions/#Agents.empty_cells",
+    "location": "builtin_functions/#Agents.empty_nodes",
     "page": "Built-in funtions",
-    "title": "Agents.empty_cells",
+    "title": "Agents.empty_nodes",
     "category": "function",
-    "text": "empty_cells(model::AbstractArray)\n\nReturns true if there are empty cells, otherwise returns false.\n\n\n\n\n\n"
+    "text": "empty_nodes(model::AbstractArray)\n\nReturns true if there are empty nodes, otherwise returns false.\n\n\n\n\n\n"
 },
 
 {
@@ -253,7 +253,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Built-in funtions",
     "title": "Space functions",
     "category": "section",
-    "text": "grid\r\ngridsize\r\nNode_iter\r\nadd_agent!\r\nmove_agent!\r\nadd_agent_single!\r\nmove_agent_single!\r\nempty_cells\r\npick_empty\r\nfind_empty_nodes_coords\r\nfind_empty_nodes\r\ncoord_to_vertex\r\nvertex_to_coord\r\nget_node_contents\r\nid_to_agent\r\nnode_neighbors"
+    "text": "grid\r\ngridsize\r\nNode_iter\r\nadd_agent!\r\nmove_agent!\r\nadd_agent_single!\r\nmove_agent_single!\r\nempty_nodes\r\npick_empty\r\nfind_empty_nodes_coords\r\nfind_empty_nodes\r\ncoord_to_vertex\r\nvertex_to_coord\r\nget_node_contents\r\nid_to_agent\r\nnode_neighbors"
 },
 
 {
