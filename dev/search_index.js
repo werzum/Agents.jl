@@ -289,11 +289,43 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "builtin_functions/#Agents.combine_columns!",
+    "page": "Built-in funtions",
+    "title": "Agents.combine_columns!",
+    "category": "function",
+    "text": "combine_columns(data::DataFrame, column_names::Array{Symbol}, aggregator::Array)\n\nCombine columns of the data that contain the same type of info from different steps of the model into one column using an aggregator, e.g. mean. You should either supply all column names that contain the same type of data, or one name (as a string) that precedes a number in different columns, e.g. \"pos_\"{some number}.\n\n\n\n\n\ncombine_columns!(data::DataFrame, column_base_name::String, aggregators)\n\ncolumnnames = vcat([columnbasename], [columnbase_name*string(i) for i in 1:size(data)[2]])\n\nCombine columns of the data that contain the same type of info from different steps of the model into one column using an aggregator, e.g. mean. You should either supply all column names that contain the same type of data, or one name (as a string) that precedes a number in different columns, e.g. \"pos_\"{some number}.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.write_to_file",
+    "page": "Built-in funtions",
+    "title": "Agents.write_to_file",
+    "category": "function",
+    "text": "write_to_file(;df::DataFrame, filename::AbstractString)\n\nWrites a DataFrame to file.\n\n\n\n\n\n"
+},
+
+{
+    "location": "builtin_functions/#Agents.data_collector",
+    "page": "Built-in funtions",
+    "title": "Agents.data_collector",
+    "category": "function",
+    "text": "data_collector(properties::Array{Symbol}, aggregators::Array, steps_to_collect_data::Array{Int64}, model::AbstractModel, step::Integer)\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(properties::Array{Symbol}, aggregators::Array, steps_to_collect_data::Array{Int64}, model::AbstractModel, step::Integer, df::DataFrame)\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(propagg::Dict, steps_to_collect_data::Array{Int64}, model::AbstractModel, step::Integer)\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(propagg::Dict, steps_to_collect_data::Array{Int64}, model::AbstractModel, step::Integer, df::DataFrame)\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(properties::Array{Symbol}, steps_to_collect_data::Array{Int64}, model::AbstractModel, step::Integer)\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(properties::Array{Symbol}, steps_to_collect_data::Array{Int64}, model::AbstractModel, step::Integer, df::DataFrame)\n\nUsed in the step! function.\n\n\n\n\n\n"
+},
+
+{
     "location": "builtin_functions/#Data-collectors-1",
     "page": "Built-in funtions",
     "title": "Data collectors",
     "category": "section",
     "text": "combine_columns!\r\nwrite_to_file\r\ndata_collector"
+},
+
+{
+    "location": "builtin_functions/#Agents.batchrunner",
+    "page": "Built-in funtions",
+    "title": "Agents.batchrunner",
+    "category": "function",
+    "text": "batchrunner(agent_step, model_step, model::AbstractModel, nsteps::Integer, properties::Array{Symbol}, aggregators::Array{Function}, steps_to_collect_data::Array{Int64}, replicates::Integer)\n\nRuns replicates number of simulation replicates and returns a DataFrame.\n\n\n\n\n\nbatchrunner(agent_step, model_step, model::AbstractModel, nsteps::Integer, properties::Array{Symbol}, steps_to_collect_data::Array{Int64}, replicates::Integer)\n\nRuns replicates number of simulation replicates and returns a DataFrame.\n\n\n\n\n\nbatchrunner(agent_step, model::AbstractModel, nsteps::Integer, properties::Array{Symbol}, aggregators::Array{Function}, steps_to_collect_data::Array{Int64}, replicates::Integer)\n\nRuns replicates number of simulation replicates and returns a DataFrame.\n\n\n\n\n\nbatchrunner(agent_step, model::AbstractModel, nsteps::Integer, properties::Array{Symbol}, steps_to_collect_data::Array{Int64}, replicates::Integer)\n\nRuns replicates number of simulation replicates and returns a DataFrame.\n\n\n\n\n\n"
 },
 
 {
