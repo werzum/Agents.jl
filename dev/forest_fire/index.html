@@ -2,25 +2,25 @@
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Forest fire · Agents.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>Agents.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../">Introduction</a></li><li><span class="toctext">Examples</span><ul><li><a class="toctext" href="../boltzmann_example01/">Boltzmann wealth distribution</a></li><li class="current"><a class="toctext" href>Forest fire</a><ul class="internal"></ul></li></ul></li><li><a class="toctext" href="../builtin_functions/">Built-in funtions</a></li></ul></nav><article id="docs"><header><nav><ul><li>Examples</li><li><a href>Forest fire</a></li></ul><a class="edit-page" href="https://github.com/kavir1698/Agents.jl/blob/master/docs/src/forest_fire.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Forest fire</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Forest-fire-model-1" href="#Forest-fire-model-1">Forest fire model</a></h1><p>The model is defined as a cellular automaton on a grid with Ld cells. L is the side length of the grid and d is its dimension. A cell can be empty, occupied by a tree, or burning. The model of Drossel and Schwabl (1992) is defined by four rules which are executed simultaneously: </p><ol><li>A burning cell turns into an empty cell</li><li>A tree will burn if at least one neighbor is burning</li><li>A tree ignites with probability f even if no neighbor is burning</li><li>An empty space fills with a tree with probability p</li></ol><p>The above explanation is from <a href="https://en.wikipedia.org/wiki/Forest-fire_model">Wikipedia</a>. Given that, we can build our model.</p><p>The complete code of this example is in the <code>examples/forest_fire.jl</code> file on the Github repository.</p><p>As usual, we define the agent, model, and space types. </p><pre><code class="language-julia">using Agents
 using Random
 
-mutable struct Tree &lt;: AbstractAgent
-  id::Integer
-  pos::Tuple{Integer, Integer}
+mutable struct Tree{T&lt;:Integer} &lt;: AbstractAgent
+  id::T
+  pos::Tuple{T, T}
   status::Bool  # true is green and false is burning
 end
 
-mutable struct Forest &lt;: AbstractModel
-  space::AbstractSpace
-  agents::Array{AbstractAgent}
+mutable struct Forest{T&lt;:AbstractSpace, Y&lt;:AbstractVector, Z&lt;:AbstractFloat} &lt;: AbstractModel
+  space::T
+  agents::Y
   scheduler::Function
-  f::Float64  # probability that a tree will ignite
-  d::Float64  # forest density
-  p::Float64  # probability that a tree will grow in an empty space
+  f::Z  # probability that a tree will ignite
+  d::Z  # forest density
+  p::Z  # probability that a tree will grow in an empty space
 end
 
-mutable struct MyGrid &lt;: AbstractSpace
-  dimensions::Tuple{Integer, Integer}
-  space
-  agent_positions::Array  # an array of arrays for each grid node
+mutable struct MyGrid{T&lt;:Integer, Y&lt;:AbstractVector} &lt;: AbstractSpace
+  dimensions::Tuple{T, T}
+  space::SimpleGraph
+  agent_positions::Y  # an array of arrays for each grid node
 end
 </code></pre><p>The agent type <code>Tree</code> has three fields: <code>id</code> and <code>pos</code>, which have to be there for any model, and a <code>status</code> field that we introduce for this specific mode. The <code>status</code> field will hold <code>true</code> for a green tree and <code>false</code> for a burning one. All model parameters go to the model type <code>Forest</code> in addition to the compulsory <code>space</code>, <code>agents</code>, and <code>scheduler</code> fields. The space type has the three minimum fields.</p><p>We can now instantiate the model. It is a good idea to put the instantiate lines in a function so that it will be easy to restart the model and change its parameters.:</p><pre><code class="language-julia">function model_initiation(;f, d, p, griddims, seed)
   Random.seed!(seed)
@@ -97,10 +97,6 @@ for i in 1:10
   visualize_2D_agent_distribution(data, forest, Symbol(&quot;pos_$i&quot;), types=Symbol(&quot;status_$i&quot;), savename=&quot;step_$i&quot;, cc=Dict(true=&gt;&quot;green&quot;, false=&gt;&quot;red&quot;))
 end</code></pre><p>Step 1</p><p><img src="../fire_step_1.png" alt/></p><p>Step 2</p><p><img src="../fire_step_2.png" alt/></p><p>Step 3</p><p><img src="../fire_step_3.png" alt/></p><pre><code class="language-julia"># Optionally Run batch simulation
 data = batchrunner(dummystep, forest_step!, forest, 10, agent_properties, aggregators, steps_to_collect_data, 10)
-# Create a column with the mean and std of the :status_count columns from differen steps.
-columnnames = vcat([:status_count], [Symbol(&quot;status_count_$i&quot;) for i in 1:9])
-using StatsBase
-combine_columns!(data, columnnames, [StatsBase.mean, StatsBase.std])
 
 # And write the results to file
 write_to_file(df=data, filename=&quot;forest_model.csv&quot;)</code></pre><footer><hr/><a class="previous" href="../boltzmann_example01/"><span class="direction">Previous</span><span class="title">Boltzmann wealth distribution</span></a><a class="next" href="../builtin_functions/"><span class="direction">Next</span><span class="title">Built-in funtions</span></a></footer></article></body></html>

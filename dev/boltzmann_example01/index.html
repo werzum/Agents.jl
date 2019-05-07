@@ -2,13 +2,13 @@
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Boltzmann wealth distribution · Agents.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>Agents.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../">Introduction</a></li><li><span class="toctext">Examples</span><ul><li class="current"><a class="toctext" href>Boltzmann wealth distribution</a><ul class="internal"><li><a class="toctext" href="#Building-the-model-1">Building the model</a></li></ul></li><li><a class="toctext" href="../forest_fire/">Forest fire</a></li></ul></li><li><a class="toctext" href="../builtin_functions/">Built-in funtions</a></li></ul></nav><article id="docs"><header><nav><ul><li>Examples</li><li><a href>Boltzmann wealth distribution</a></li></ul><a class="edit-page" href="https://github.com/kavir1698/Agents.jl/blob/master/docs/src/boltzmann_example01.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Boltzmann wealth distribution</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Boltzmann-wealth-distribution-1" href="#Boltzmann-wealth-distribution-1">Boltzmann wealth distribution</a></h1><p>This is a simple agent-based model in economics. Despite its simplicity, it shows striking emergent wealth distribution. The first model that we will does not have spatial structure.</p><ul><li>We start with a number of agents all of which have one unit of wealth.</li><li>At every step, agents give one unit of their money (if they have any) to a random agent.</li><li>We will see how wealth will be distributed after a few steps.</li></ul><p>The code of this tutorial is in the <code>examples/boltzmann_wealth_distribution.jl</code> file on the Github repository.</p><h2><a class="nav-anchor" id="Building-the-model-1" href="#Building-the-model-1">Building the model</a></h2><p>Agents.jl structures simulations in three components. A <em>model</em> component that keeps all model-level variables and data, an <em>agent</em> component that keeps all agent-level variables and data, and <em>space</em> component that keeps space-level data.</p><p>At the beginning of each building any model, define your types for each of these components. After that, you will have to initialize your model, and write one or two functions to change angets and/or the model at each step. This will be all before you can run your model and analyze its results.</p><p>Now let&#39;s build our three types of this model:</p><p>These types should be subtypes of the following abstract types:</p><ul><li>The agent type should be a subtype of <code>AbstractAgent</code>.</li><li>The model type should be a subtype of <code>AbstractModel</code>.</li><li>The space type should be a subtype of <code>AbstractSpace</code>.</li></ul><p>This subtyping will allow all the built-in functions to work on your define types.</p><pre><code class="language-julia">using Agents
 
 # 1. define agent type
-mutable struct MyAgent &lt;: AbstractAgent
-  id::Integer
-  pos::Tuple{Integer, Integer}  # x,y coords
-  wealth::Integer
+mutable struct MyAgent{T&lt;:Integer} &lt;: AbstractAgent
+  id::T
+  pos::Tuple{T, T}  # x,y coords
+  wealth::T
 end</code></pre><p>The agent type has to have the <code>id</code> and the <code>pos</code> (for position) fields, but it can have any other fields that you desire. Here we add a <code>wealth</code> field that accepts integers. If your space is a grid, the position should accept a <code>Tuple{Integer, Integer}</code> representing x, y coordinates.</p><pre><code class="language-julia"># 2. define a model type
-mutable struct MyModel &lt;: AbstractModel
-  agents::Array{AbstractAgent}  # an array of agents
+mutable struct MyModel{T&lt;:AbstractVector} &lt;: AbstractModel
+  agents::T  # an array of agents
   scheduler::Function
 end</code></pre><p>The model type has to have the <code>space</code>, <code>agents</code>, and <code>scheduler</code> fields. <code>space</code> will keep our space type, <code>agents</code> will be an array of all the agents, and <code>scheduler</code> will hold a function that specifies the order at which agents activate at each generation. See <a href="../builtin_functions/#Scheduler-functions-1">Scheduler functions</a> for available scheduler functions, and <a href="../builtin_functions/#Space-functions-1">Space functions</a> for available space structures.</p><p>Since for this first step, we do not need a space structure, we will not define a space type and not create field for it in the model <code>struct</code>.</p><p>Now we write a function to instantiate the model:</p><pre><code class="language-julia"># 3. instantiate the model
 function instantiate_model(;numagents)
@@ -28,24 +28,24 @@ end</code></pre><p>That&#39;s it. We can run the model. The <code>step!</code> f
 steps_to_collect_data = collect(1:10)
 data = step!(agent_step!, model, 10, agent_properties, steps_to_collect_data)</code></pre><p>This code collects all agents&#39; wealth at each step and stores them in a <code>DataFrame</code>.  We can then interactively plot the data in DataVoyager and see the distribution of wealth at each step</p><pre><code class="language-julia">visualize_data(data)</code></pre><p>Often, in ABM we want to run a model many times and observe the average behavior of the system. We can do this easily with the <code>batchrunner</code> function. It accepts the same arguments and in the same order as the <code>step!</code> function:</p><pre><code class="language-julia">model = instantiate_model(numagents=100)
 data = batchrunner(agent_step!, model, 10, agent_properties, steps_to_collect_data, 10)</code></pre><p>We can include a grid in our model and let the agents interact only with those in the same node. To that end, we will have to modify the model type and write a space type:</p><pre><code class="language-julia"># Add grid field to the model type
-mutable struct MyModel2 &lt;: AbstractModel
-  space::AbstractSpace
-  agents::Array{AbstractAgent}  # an array of agents
+mutable struct MyModel2{T&lt;:AbstractSpace, Y&lt;:AbstractVector} &lt;: AbstractModel
+  space::T
+  agents::Y  # an array of agents
   scheduler::Function
 end
 
 # define a space type
-mutable struct MyGrid &lt;: AbstractSpace
-  dimensions::Tuple{Integer, Integer}
-  space
-  agent_positions::Array  # an array of arrays for each grid node
+mutable struct MyGrid{T&lt;:Integer, Y&lt;:AbstractVector} &lt;: AbstractSpace
+  dimensions::Tuple{T, T}
+  space::SimpleGraph
+  agent_positions::Y  # an array of arrays for each grid node
 end</code></pre><p>The space type has to have the <code>dimensions</code>, <code>space</code>, and <code>agent_positions</code> fields. <code>dimensions</code> should be there only if you are using a grid space. The <code>space</code> field keeps the actual graph of the space. The <code>agent_positions</code> is always an array of arrays. An array for each node of the space. It will be used to keep the <code>agent.id</code>s of agents in each node.</p><p>We also have to modify the model instantiation function:</p><pre><code class="language-julia">function instantiate_model(;numagents, griddims)
-  agent_positions = [Array{Integer}(undef, 0) for i in 1:gridsize(griddims)]  # an array of arrays for each node of the space
+  agent_positions = [Int64[] for i in 1:gridsize(griddims)]  # an array of arrays for each node of the space
   mygrid = MyGrid(griddims, grid(griddims), agent_positions)  # instantiate the grid structure
-  model = MyModel(mygrid, AbstractAgent[], random_activation)  # instantiate the model
+  model = MyModel2(mygrid, AbstractAgent[], random_activation)  # instantiate the model
   agents = [MyAgent(i, (1,1), 1) for i in 1:numagents]  # create a list of agents
   for ag in agents
-    add_agent!(agent, model)
+    add_agent!(ag, model)
   end
   return model
 end
