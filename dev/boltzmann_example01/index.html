@@ -42,7 +42,7 @@ mutable struct MyGrid{T&lt;:Integer, Y&lt;:AbstractVector} &lt;: AbstractSpace
 end</code></pre><p>The space type has to have the <code>dimensions</code>, <code>space</code>, and <code>agent_positions</code> fields. <code>dimensions</code> should be there only if you are using a grid space. The <code>space</code> field keeps the actual graph of the space. The <code>agent_positions</code> is always an array of arrays. An array for each node of the space. It will be used to keep the <code>agent.id</code>s of agents in each node.</p><p>We also have to modify the model instantiation function:</p><pre><code class="language-julia">function instantiate_model(;numagents, griddims)
   agent_positions = [Int64[] for i in 1:gridsize(griddims)]  # an array of arrays for each node of the space
   mygrid = MyGrid(griddims, grid(griddims), agent_positions)  # instantiate the grid structure
-  model = MyModel2(mygrid, AbstractAgent[], random_activation)  # instantiate the model
+  model = MyModel2(mygrid, MyAgent[], random_activation)  # instantiate the model
   agents = [MyAgent(i, (1,1), 1) for i in 1:numagents]  # create a list of agents
   for ag in agents
     add_agent!(ag, model)
