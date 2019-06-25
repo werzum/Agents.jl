@@ -13,7 +13,55 @@ var documenterSearchIndex = {"docs": [
     "page": "Introduction",
     "title": "Agents.jl Documentation",
     "category": "section",
-    "text": "Agents.jl is a Julia framework for an agent-based modeling (ABM). It provides a structure and components for quickly implementing agent-based models, run them in batch, collect data, and visualize them. To that end, it provides the following functionalities: Default grids to run the simulation, including simple or toroidal 1D grids, simple or toroidal regular rectangular and triangular 2D grids, and simple or toroidal regular cubic 3D grids with von Neumann or Moore neighborhoods. More space structure are to be implemented include arbitrary random networks.\nRunning the simulations in parallel on multiple cores or on clusters. (This is not ready yet)\nAutomatic data collection in a DataFrame at desired intervals.\nExploring the simulation results interactively in Data Voyegar 2.\nBatch running and batch data collection\nVisualize agent distributions on gridsJulia is a language that is especially suitable for ABMs, because a) it runs fast, b) it is easy to express your ideas in and quick to write, and c) it has rich and easy-to-use packages for data analysis.Agents.jl is lightweight and modular. It has a short learning curve, and allows one to extend its capabilities and express complicated modeling scenarios. Agents.jl is inspired by Mesa framework for Python.For a quick tutorial see the example models."
+    "text": "Agents.jl is a Julia framework for an agent-based modeling (ABM). It provides a structure and components for quickly implementing agent-based models, run them in batch, collect data, and visualize them. To that end, it provides the following functionalities: Default grids to run the simulation, including simple or toroidal 1D grids, simple or toroidal regular rectangular and triangular 2D grids, and simple or toroidal regular cubic 3D grids with von Neumann or Moore neighborhoods. Users can use their defined graphs too.\nAutomatic data collection in a DataFrame at desired intervals.\nExploring the simulation results interactively in Data Voyegar 2.\nBatch running and batch data collection\nVisualize agent distributions on gridsMany agent-based modeling frameworks have been constructed to ease the process of building and analyzing ABMs (see here for a review). Notable examples are NetLogo, Repast, MASON, and Mesa. Implementing an ABM framework in Julia has several advantages. First, using a general purpose programming language instead of a custom scripting language, such as NetLogo\'s, removes a learning step and provides a single environment for building the models and analyzing their results. Julia has a rich ecosystem for data analysis and visualization. Second, Julia is easier-to-use than Java (used for Repast and MASON), and provides a REPL (Read-Eval-Print-Loop) environment to build and analyze models interactively. Third, unlike Python (used for Mesa), Julia is easy-to-write but also fast to run. This is a crucial criterion for models that require considerable computations.Agents.jl provides users with core components that make it easy to build ABMS, run them in batch, collect model outputs, and visualize the results. Briefly, the framework eases the following tasks for the user, and is at the same time flexible enough to allow implementation of almost any ABM. Schedulers: users can choose from a range of activation regimes,i.e. the order with which agents activate, or implement a custom one. Spatial structures: the framework implements 1D, 2D, and 3D grids which can optionally have periodic boundary conditions, meaning that edges of a grid connect to their opposite edges. An agent exiting from one edge enters the grid from the opposite edge. Moreover, users can construct irregular networks as the space where the agents live. Data collection: users only specify the kind of data they need and the framework automatically collects them in a table. The collected data are then ready to be analyzed and visualized. Visualization users can create custom plots interactively from the simulation outputs using the Data Voyager platform. Furthermore, they can visualize agent distributions on 2D grids. Batch run: in agent-based modeling, we can rarely make conclusions from single simulation runs. Instead we run many replicates of a simulation and observe the mean behavior of the system. Agents.jl automates running simulation replicates and collecting and aggregating their results.Agents.jl is lightweight and modular. It has a short learning curve, and allows one to extend its capabilities and express complicated modeling scenarios. Agents.jl is inspired by Mesa framework for Python."
+},
+
+{
+    "location": "#Other-features-1",
+    "page": "Introduction",
+    "title": "Other features",
+    "category": "section",
+    "text": ""
+},
+
+{
+    "location": "#Aggregating-collected-data-1",
+    "page": "Introduction",
+    "title": "Aggregating collected data",
+    "category": "section",
+    "text": "Sometimes, it is easier to take summary statistics than collect all the raw data. The step! function accepts a list of aggregating functions, e.g. mean and median. If such a list is provided, each function will apply to a list of the agent fields at each step. Only the summary statistics will be returned. It is possible to pass a dictionary of agent fields and aggregator functions that only apply to those fields. To collect data from the model object, pass :model instead of an agent field. To collect data from a list of agent objects, rather than a list of agents\' fields, pass :agent."
+},
+
+{
+    "location": "#Running-multiple-replicates-1",
+    "page": "Introduction",
+    "title": "Running multiple replicates",
+    "category": "section",
+    "text": "Since ABMs are stochastic, researchers often run multiple replicates of a simulation and observe its mean behavior. Agents.jl provides the batchrunner function which allows running and collecting data from multiple simulation replicates. Furthermore, the combine_columns! function merges the results of simulation replicates into single columns using user-passed aggregator functions."
+},
+
+{
+    "location": "#Exploratory-data-analysis-1",
+    "page": "Introduction",
+    "title": "Exploratory data analysis",
+    "category": "section",
+    "text": "Julia has extensive tools for data analysis. Having the results of simulations in DataFrame format makes it easy to take advantage of most of such tools. Examples include the VegaLite.jl package for data visualization, which uses a grammar of graphics syntax to produce interactive plots. Moreover, DataVoyager.jl provides an interactive environment to build custom plots from DataFrames. Agents.jl provides visualize_data function that sends the simulation outputs to Data Voyager. "
+},
+
+{
+    "location": "#Why-we-need-agent-based-modeling-1",
+    "page": "Introduction",
+    "title": "Why we need agent-based modeling",
+    "category": "section",
+    "text": "Agent-based models (ABMs) are increasingly recognized as the approach for studying complex systems. Complex systems cannot be fully understood using the traditional mathematical tools that aggregate the behavior of elements in a system. The behavior of a complex system depends on the behavior and interaction of its elements (agents). Small changes in the input to complex systems or the behavior of its agents can lead to large changes in system\'s outcome. That is to say a complex system\'s behavior is nonlinear, and that it is not the sum of the behavior of its elements. Use of ABMs have become feasible after the availability of computers and has been growing since, especially in modeling biological and economical systems, and has extended to social studies and archeology.An ABM consists of autonomous agents that behave given a set of rules. A classic and simple example of an ABM is a cellular automaton. A cellular automaton is a regular grid where each cell is an agent. Cells have different states, for example, on or off. A cell\'s state can change at each step depending on the state of its neighbors. This simple model can lead to unpredicted emergent patterns on the grid. Famous examples of which are Wolfram\'s rule 22 and rule 30 (see here and figure below).(Image: Wolfram\'s rule 22 implemented in Agents.jl) (Image: Wolfram\'s rule 30 implemented in Agents.jl)Another classic example of an ABM is Schelling\'s segregation model. This model also uses a regular grid and defines agents as the cells of the grid. Agents can be from different social groups. Agents are happy/unhappy based on the fraction of their neighbors that belong to the same group as they are. If they are unhappy, they keep moving to new locations until they are happy. Schelling\'s model shows that even small preferences of agents to have neighbors belonging to the same group (e.g. preferring that at least 30% of neighbors to be in the same group) could lead to total segregation of neighborhoods. This is another example of an emergent phenomenon from simple interactions of agents."
+},
+
+{
+    "location": "#Tutorial-1",
+    "page": "Introduction",
+    "title": "Tutorial",
+    "category": "section",
+    "text": "For a quick tutorial see the example models. I recommend starting with Schelling\'s segregation model."
 },
 
 {
@@ -29,7 +77,87 @@ var documenterSearchIndex = {"docs": [
     "page": "Introduction",
     "title": "Table of contents",
     "category": "section",
-    "text": "This is still work in progress. I am working on the following:Adding more unit tests\nImplementing more examples\nParallel computing of batch simulations\n3D visualization"
+    "text": ""
+},
+
+{
+    "location": "schelling/#",
+    "page": "Schelling\'s segregation model",
+    "title": "Schelling\'s segregation model",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "schelling/#Schelling\'s-segregation-model-1",
+    "page": "Schelling\'s segregation model",
+    "title": "Schelling\'s segregation model",
+    "category": "section",
+    "text": ""
+},
+
+{
+    "location": "schelling/#Agents.jl\'s-architecture-1",
+    "page": "Schelling\'s segregation model",
+    "title": "Agents.jl\'s architecture",
+    "category": "section",
+    "text": "Agents.jl is composed of components for building models, building and managing space structures, collecting data, running batch simulations, and data visualization.For building any ABM, users have to define at least three objects and one function (Fig. 1). Agents.jl\'s tools manage the rest of the path to producing data and visualizations (Fig. 1). We now demonstrate Agents.jl\'s architecture and features through building Schelling\'s segregation model.(Image: Fig. 1. __Path from building a model to gaining information from the model using Agents.jl.__ The box in cyan is what the user has to provide and the boxes in green are what Agents.jl provides.)We implement the following definition of Schelling\'s segregation model:Agents are of two kind (0 or 1).\nEach agent has eight neighbors (Moore neighborhoods).\nIf an agent is in the same group with at least three neighbors, then it is happy.\nIf an agent is unhappy, it keeps moving to new locations until it is happy."
+},
+
+{
+    "location": "schelling/#Defining-a-model-object-1",
+    "page": "Schelling\'s segregation model",
+    "title": "Defining a model object",
+    "category": "section",
+    "text": "Building models using Agents.jl, we always start by defining three basic objects for the model, the agents and the space. A model object is a subtype of AbstractModel. Making the model a subtype of AbstractModel will make Agents.jl methods available to the model. It needs to have the following three fields: scheduler, space}, andagents}. We can add more fields if needed. The scheduler field accepts a function that defines the order with which agents will activate at each step. The function should accept the model object as its input and return a list of agent indices. Agents.jl provides three schedulers: as_added to activate agents as they have been added to the model, random_activation to activate agents randomly, and partial_activation to activate only a random fraction of agents at each step.using Agents\r\n\r\nmutable struct SchellingModel <: AbstractModel  # A model object should always be a subtype of AbstractModel\r\n space::AbstractSpace  # A space object, which is a field of the model object is always subtype of AbstractSpace\r\n agents::Array{AbstractAgent}  # a list of agents\r\n scheduler::Function\r\n min_to_be_happy::Integer  # minimum number of neighbors to be of the same kind so that they are happy\r\nendIt is best to make any model parameter a field of the model object. We add the minimum number of neighbors of the same kind for an agent to be happy as a field of the model (min_to_be_happy). \\subsubsection*{Defining an agent object}Next, we define an agent object. Agent objects are subtypes of AbstractAgent and should always have the following fields: id which stores agent IDs as integers, and pos to store each agent\'s position. Agent positions can be tuple of integers as coordinates of nodes of a grid (1D, 2D or 3D). Positions can also be integers only, referring to the number of a node in an irregular network.mutable struct SchellingAgent <: AbstractAgent # An agent object should always be a subtype of AbstractAgent\r\n id::Integer\r\n pos::Tuple{Integer, Integer}\r\n mood::Bool # true is happy and false is unhappy\r\n group::Integer\r\nendWe add two more fields for this model, namely a mood field which will store true for a happy agent and false for an unhappy one, and an group field which stores 0 or 1 representing two groups."
+},
+
+{
+    "location": "schelling/#Defining-a-space-object-1",
+    "page": "Schelling\'s segregation model",
+    "title": "Defining a space object",
+    "category": "section",
+    "text": "Finally, we define a space object. The space object is always a subtype of AbstractSpace and should have at least the following three fields. First, a space field which holds the spatial structure of the model. Agents.jl uses network structures from the LightGraphs package to represent space.  It provides 1D, 2D and 3D grids. The grids may have periodic boundary conditions, meaning nodes on the left and right edges and top and bottom edges are connected to one another. Furthermore, the nodes on a grid may have von Neumann neighborhoods, i.e. only connect to their orthogonal neighbors, or Moore neighborhoods, i.e. connect to their orthogonal and diagonal neighbors. Users may also provide arbitrary networks as their model\'s spatial structure. The second field of the space object is the dimensions of the grid or network. Lastly, every space object should have an agent_positions field. This field is an array of arrays for each node of the network. Each inner array will record the ID of the agents on that position. Agents.jl keeps the position of agents in two places. One in each agent\'s object and one in the agent_positions.mutable struct MyGrid <: AbstractSpace # A space object should always be a subtype of AbstractSpace\r\n dimensions::Tuple{Integer, Integer}\r\n space\r\n agent_positions::Array  # an array of arrays for each grid node\r\nend"
+},
+
+{
+    "location": "schelling/#Instantiating-the-model-1",
+    "page": "Schelling\'s segregation model",
+    "title": "Instantiating the model",
+    "category": "section",
+    "text": "Now that we have defined the basic objects, we should instantiate the model. We put the model instantiation in a function so that it will be easy to recreate the model and change its parameters.function instantiate_model(; numagents=320, griddims=(20, 20), min_to_be_happy=3)\r\n agent_positions = [Array{Integer}(undef, 0) for i in 1:gridsize(griddims)]  # 1\r\n mygrid = MyGrid(griddims, grid(griddims, false, true), agent_positions)  # 2\r\n model = SchellingModel(mygrid, AbstractAgent[], random_activation, min_to_be_happy)  # 3\r\n  \r\n agents = vcat(\r\n  [SchellingAgent(i, (1,1), false, 0) for i in 1:(numagents/2)], [SchellingAgent(i, (1,1), false, 1) for i in (numagents/2)+1:numagents])  # 4\r\n\r\n for agent in agents \r\n  add_agent_single!(agent, model)  # 5\r\n end\r\n return model\r\nendExplanations below correspond to the numbered lines in the code snippet above:creates an array of empty arrays as many as there are agents.\ncreates a 2D grid with nodes that have Moore neighborhoods. The grid does not have periodic edges.\ninstantiates the model. It uses an empty array for agents.\ncreates an array of agents with two different groups. All agents have a temporary coordinate of (1, 1).\nadds agents to random nodes in space and to the agents array in the model object. add_agent_single! ensures that there are no more than one agent per node."
+},
+
+{
+    "location": "schelling/#Defining-a-step-function-1",
+    "page": "Schelling\'s segregation model",
+    "title": "Defining a step function",
+    "category": "section",
+    "text": "The last step of building our ABM is defining a step function. Any ABM model should have at least one and at most two step functions. An agent step function is always required. Such an agent step function defines what happens to an agent when it activates. Sometimes, that is not enough and we will need a function that changes all agents at once, or change a model property. In such cases, we can also provide a model step function. An agent step function should only accept two arguments, the first of which an agent object and the second of which a model object. The model step function should accept only one argument, that is the model object. It is possible to only have a model step function, in which case users have to use the built-in dummystep as the agent step function.function agent_step!(agent, model)\r\n if agent.mood == true\r\n  return\r\n end\r\n while agent.mood == false\r\n  neighbor_cells = node_neighbors(agent, model)\r\n  same = 0\r\n  for nn in neighbor_cells\r\n   nsid = get_node_contents(nn, model)\r\n   if length(nsid) == 0\r\n    continue\r\n   else\r\n    nsid = nsid[1]\r\n   end\r\n   ns = model.agents[nsid].group\r\n   if ns == agent.group\r\n    same += 1\r\n   end\r\n  end\r\n  if same >= model.min_to_be_happy\r\n   agent.mood = true\r\n  else\r\n   # move\r\n   move_agent_single!(agent, model)\r\n  end\r\n end\r\nendFor building this implementation of Schelling\'s segregation model, we only need an agent step function. When an agent activates it does one of the following. If it is already happy, it does not do anything. Otherwise, it counts the number of its neighbors that are from the same group. If they are as many as min_to_be_happy, the agent will be happy. Otherwise it will keep moving to random empty nodes on the grid until it is happy. For doing these operations, we used some of the built-in functions of Agents.jl, such as node_neighbors that returns the neighboring nodes of the node on which the agent resides, get_node_contents that returns the IDs of the agents on a given node, and move_agent_single! which moves agents to random empty nodes on the grid. A full list of built-in functions and their explanations are available in the online manual."
+},
+
+{
+    "location": "schelling/#Running-the-model-1",
+    "page": "Schelling\'s segregation model",
+    "title": "Running the model",
+    "category": "section",
+    "text": "We can run each step of the function using the built-in step! function. This will update the agents and the model as defined by the agent_step! function.model = instantiate_model(numagents=200, griddims=(20,20), min_to_be_happy=2)\r\nstep!(agent_step!, model)  # run the model one step or\r\nstep!(agent_step!, model, 3)  # run the model multiple (3) steps"
+},
+
+{
+    "location": "schelling/#Running-the-model-and-collecting-data-1",
+    "page": "Schelling\'s segregation model",
+    "title": "Running the model and collecting data",
+    "category": "section",
+    "text": "There is however a more efficient way to run the model and collect data. We can use the same step! function with more arguments to run multiple steps and collect values of our desired fields from every agent and put these data in a DataFrame object.model = instantiate_model(numagents=200, griddims=(20,20), min_to_be_happy=2)\r\nagent_properties = [:pos, :mood, :group]\r\nsteps_to_collect_data = collect(1:4)\r\ndata = step!(agent_step!, model, 4, agent_properties, steps_to_collect_data)juliaagent_properties is an array of Symbols for the agent fields that we want to collect. steps_to_collect_data specifies at which steps data should be collected."
+},
+
+{
+    "location": "schelling/#Visualizing-the-data-1",
+    "page": "Schelling\'s segregation model",
+    "title": "Visualizing the data",
+    "category": "section",
+    "text": "We can use the visualize_2D_agent_distribution function to plot the distribution of agents on a 2D grid at every generation (Fig. 1):for i in 1:4\r\n visualize_2D_agent_distribution(data, model, Symbol(\"pos_$i\"), types=Symbol(\"group_$i\"), savename=\"step_$i\", cc=Dict(0=>\"blue\", 1=>\"red\"))\r\nendThe first and second arguments of the visualize_2D_agent_distribution are the data and the model objects. The third argument is the column name in data that has the position of each agent. The fourth argument is the column name in data that stores agents\'  groups. savename is the name of the plot file. cc is a dictionary that defines the colors of each agent group."
 },
 
 {
@@ -70,6 +198,22 @@ var documenterSearchIndex = {"docs": [
     "title": "Forest fire model",
     "category": "section",
     "text": "The model is defined as a cellular automaton on a grid with Ld cells. L is the side length of the grid and d is its dimension. A cell can be empty, occupied by a tree, or burning. The model of Drossel and Schwabl (1992) is defined by four rules which are executed simultaneously: A burning cell turns into an empty cell\nA tree will burn if at least one neighbor is burning\nA tree ignites with probability f even if no neighbor is burning\nAn empty space fills with a tree with probability pThe above explanation is from Wikipedia. Given that, we can build our model.The complete code of this example is in the examples/forest_fire.jl file on the Github repository.As usual, we define the agent, model, and space types. using Agents\nusing Random\n\nmutable struct Tree{T<:Integer} <: AbstractAgent\n  id::T\n  pos::Tuple{T, T}\n  status::Bool  # true is green and false is burning\nend\n\nmutable struct Forest{T<:AbstractSpace, Y<:AbstractVector, Z<:AbstractFloat} <: AbstractModel\n  space::T\n  agents::Y\n  scheduler::Function\n  f::Z  # probability that a tree will ignite\n  d::Z  # forest density\n  p::Z  # probability that a tree will grow in an empty space\nend\n\nmutable struct MyGrid{T<:Integer, Y<:AbstractVector} <: AbstractSpace\n  dimensions::Tuple{T, T}\n  space::SimpleGraph\n  agent_positions::Y  # an array of arrays for each grid node\nend\nThe agent type Tree has three fields: id and pos, which have to be there for any model, and a status field that we introduce for this specific mode. The status field will hold true for a green tree and false for a burning one. All model parameters go to the model type Forest in addition to the compulsory space, agents, and scheduler fields. The space type has the three minimum fields.We can now instantiate the model. It is a good idea to put the instantiate lines in a function so that it will be easy to restart the model and change its parameters.:function model_initiation(;f, d, p, griddims, seed)\n  Random.seed!(seed)\n  # initialize the model\n  # we start the model without creating the agents first\n  agent_positions = [Array{Integer}(undef, 0) for i in 1:gridsize(griddims)]\n  mygrid = MyGrid(griddims, grid(griddims, false, true), agent_positions)  # create a 2D grid where each node is connected to at most 8 neighbors.\n  forest = Forest(mygrid, Array{Tree}(undef, 0), random_activation, f, d, p)\n\n  # create and add trees to each node with probability d, which determines the density of the forest\n  for node in 1:gridsize(forest.space.dimensions)\n    pp = rand()\n    if pp <= forest.d\n      tree = Tree(node, (1,1), true)\n      add_agent!(tree, node, forest)\n    end\n  end\n  return forest\nendNote that to keep the simulation results repeatable, we include Random.seed!(seed), so that the random number generator start from the same position everytime.We should now make a step function. It maybe easier to randomly go through every node on the grid and decide what happens to the node depending on its state. If its empty, add a tree with probability p, if it has a burning tree, remove it from the node, and if it has a green tree with a burning neighbor, burn the tree. Doing this requires a step function for the model, not every single agent. A model step function only accepts a model type as its argument.function forest_step!(forest)\n  shuffled_nodes = shuffle(1:gridsize(forest.space.dimensions))\n  for node in shuffled_nodes  # randomly go through the cells and \n    if length(forest.space.agent_positions[node]) == 0  # the cell is empty, maybe a tree grows here?\n      p = rand()\n      if p <= forest.p\n        treeid = forest.agents[end].id +1\n        tree = Tree(treeid, (1,1), true)\n        add_agent!(tree, node, forest)\n      end\n    else\n      treeid = forest.space.agent_positions[node][1]  # id of the tree on this cell\n      tree = id_to_agent(treeid, forest)  # the tree on this cell\n      if tree.status == false  # if it is has been burning, remove it.\n        kill_agent!(tree, forest)\n      else\n        f = rand()\n        if f <= forest.f  # the tree ignites on fire\n          tree.status = false\n        else  # if any neighbor is on fire, set this tree on fire too\n          neighbor_cells = node_neighbors(tree, forest)\n          for cell in neighbor_cells\n            treeid = get_node_contents(cell, forest)\n            if length(treeid) != 0  # the cell is not empty\n              treen = id_to_agent(treeid[1], forest)\n              if treen.status == false\n                tree.status = false\n                break\n              end\n            end\n          end\n        end\n      end\n    end\n  end\nend\nThat is all before we run the model. Because an agent step function is necessary for the built-in step! method, we use a dummy agent step function (dummystep) that accepts two arguments (one for the agent object and one for the model object).# create the model\nforest = model_initiation(f=0.1, d=0.8, p=0.1, griddims=(20, 20), seed=2)\n\n# choose which agent properties you want to collect\nagent_properties = [:status]\n\n# what functions to apply to the chosen agent properties before collecting them. `length` will show the number of trees and `count` the number of green trees.\naggregators = [length, count]\n\n# at which steps to collect the data\nsteps_to_collect_data = collect(1:100)\n\n# Run the model for 100 steps\ndata = step!(dummystep, forest_step!, forest, 100, agent_properties, aggregators, steps_to_collect_data)\n\n# explore data visually\nvisualize_data(data)Alternatively, collect agent positions and plot them on a 2D gridforest = model_initiation(f=0.05, d=0.8, p=0.01, griddims=(20, 20), seed=2)\ndata = step!(dummystep, forest_step!, forest, 10, agent_properties, collect(1:10))\nfor i in 1:10\n  visualize_2D_agent_distribution(data, forest, Symbol(\"pos_$i\"), types=Symbol(\"status_$i\"), savename=\"step_$i\", cc=Dict(true=>\"green\", false=>\"red\"))\nendStep 1(Image: )Step 2(Image: )Step 3(Image: )# Optionally Run batch simulation\ndata = batchrunner(dummystep, forest_step!, forest, 10, agent_properties, aggregators, steps_to_collect_data, 10)\n\n# And write the results to file\nwrite_to_file(df=data, filename=\"forest_model.csv\")"
+},
+
+{
+    "location": "CA/#",
+    "page": "Cellular Automata",
+    "title": "Cellular Automata",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "CA/#Cellular-automata-1",
+    "page": "Cellular Automata",
+    "title": "Cellular automata",
+    "category": "section",
+    "text": "Building cellular automata (CA) with Agents.jl is straightforward. Since CA have been studied extensively,  Agents.jl provides modules for building and visualizing one- and two-dimensional CA. The following is an example of building Wolfram\'s rule 22.using Agents\r\nusing Agents.CA1D\r\n# Define the rule\r\nrules = Dict(\"111\"=>\"0\", \"110\"=>\"0\", \"101\"=>\"0\", \"100\"=>\"1\", \"011\"=>\"0\", \"010\"=>\"1\", \"001\"=>\"1\", \"000\"=>\"0\")  # rule 22\r\n\r\n# Build the model\r\nmodel = CA1D.build_model(rules=rules, ncols=101)  # creates a model where all columns are \"0\"\r\n# change one cell\'s status:\r\nmodel.agents[50].status=\"1\"\r\n\r\n# Run the model, collect data, and visualize it \r\nruns = 100\r\nCA1D.ca_run(model, runs)And the following is an example of 2D CA implementing Conway\'s game of life:using Agents\r\nusing Agents.CA2D\r\n\r\n# Define the rule\r\nrules = (2,3,3)\r\n\r\n# Build the model\r\nmodel = CA2D.build_model(rules=rules, \r\n dims=(100, 100), Moore=true)\r\n# make some random cells alive\r\nfor i in 1:gridsize(model.space.dimensions)\r\n if rand() < 0.05\r\n  model.agents[i].status=\"1\"\r\n end\r\nend\r\n\r\n# Run the model, collect data, and visualize them \r\nruns = 50\r\nCA2D.ca_run(model, runs)Rules of a 2D cellular automaton in the CA2D module follow DSR (Death, Survival, Reproduction). Cells die if the number of their living neighbors are <D, survive if the number of their living neighbors are <=S, come to life if their living neighbors are as many as R."
 },
 
 {
