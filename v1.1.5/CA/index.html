@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Cellular Automata · Agents.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>Agents.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../">Introduction</a></li><li><span class="toctext">Examples</span><ul><li><a class="toctext" href="../schelling/">Schelling&#39;s segregation model</a></li><li><a class="toctext" href="../boltzmann_example01/">Boltzmann wealth distribution</a></li><li><a class="toctext" href="../forest_fire/">Forest fire</a></li><li class="current"><a class="toctext" href>Cellular Automata</a><ul class="internal"></ul></li></ul></li><li><a class="toctext" href="../builtin_functions/">Built-in funtions</a></li></ul></nav><article id="docs"><header><nav><ul><li>Examples</li><li><a href>Cellular Automata</a></li></ul><a class="edit-page" href="https://github.com/kavir1698/Agents.jl/blob/master/docs/src/CA.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Cellular Automata</span><a class="fa fa-bars" href="#"></a></div></header><h3><a class="nav-anchor" id="Cellular-automata-1" href="#Cellular-automata-1">Cellular automata</a></h3><p>Building cellular automata (CA) with <code>Agents.jl</code> is straightforward. Since CA have been studied extensively,  <code>Agents.jl</code> provides modules for building and visualizing one- and two-dimensional CA. The following is an example of building Wolfram&#39;s rule 22.</p><pre><code class="language-julia">using Agents
+using Agents.CA1D
+# Define the rule
+rules = Dict(&quot;111&quot;=&gt;&quot;0&quot;, &quot;110&quot;=&gt;&quot;0&quot;, &quot;101&quot;=&gt;&quot;0&quot;, &quot;100&quot;=&gt;&quot;1&quot;, &quot;011&quot;=&gt;&quot;0&quot;, &quot;010&quot;=&gt;&quot;1&quot;, &quot;001&quot;=&gt;&quot;1&quot;, &quot;000&quot;=&gt;&quot;0&quot;)  # rule 22
+
+# Build the model
+model = CA1D.build_model(rules=rules, ncols=101)  # creates a model where all columns are &quot;0&quot;
+# change one cell&#39;s status:
+model.agents[50].status=&quot;1&quot;
+
+# Run the model, collect data, and visualize it 
+runs = 100
+CA1D.ca_run(model, runs)</code></pre><p>And the following is an example of 2D CA implementing Conway&#39;s game of life:</p><pre><code class="language-julia">using Agents
+using Agents.CA2D
+
+# Define the rule
+rules = (2,3,3)
+
+# Build the model
+model = CA2D.build_model(rules=rules, 
+ dims=(100, 100), Moore=true)
+# make some random cells alive
+for i in 1:gridsize(model.space.dimensions)
+ if rand() &lt; 0.05
+  model.agents[i].status=&quot;1&quot;
+ end
+end
+
+# Run the model, collect data, and visualize them 
+runs = 50
+CA2D.ca_run(model, runs)</code></pre><p>Rules of a 2D cellular automaton in the <code>CA2D</code> module follow DSR (Death, Survival, Reproduction). Cells die if the number of their living neighbors are &lt;D, survive if the number of their living neighbors are &lt;=S, come to life if their living neighbors are as many as R.</p><footer><hr/><a class="previous" href="../forest_fire/"><span class="direction">Previous</span><span class="title">Forest fire</span></a><a class="next" href="../builtin_functions/"><span class="direction">Next</span><span class="title">Built-in funtions</span></a></footer></article></body></html>
