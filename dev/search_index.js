@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Introduction",
     "title": "Agents.jl Documentation",
     "category": "section",
-    "text": "Agents.jl is a Julia framework for an agent-based modeling (ABM). It provides a structure and components for quickly implementing agent-based models, run them in batch, collect data, and visualize them. To that end, it provides the following functionalities: Default grids to run the simulation, including simple or toroidal 1D grids, simple or toroidal regular rectangular and triangular 2D grids, and simple or toroidal regular cubic 3D grids with von Neumann or Moore neighborhoods. Users can use their defined graphs too.\nAutomatic data collection in a DataFrame at desired intervals.\nExploring the simulation results interactively in Data Voyegar 2.\nBatch running and batch data collection\nVisualize agent distributions on gridsMany agent-based modeling frameworks have been constructed to ease the process of building and analyzing ABMs (see here for a review). Notable examples are NetLogo, Repast, MASON, and Mesa. Implementing an ABM framework in Julia has several advantages. First, using a general purpose programming language instead of a custom scripting language, such as NetLogo\'s, removes a learning step and provides a single environment for building the models and analyzing their results. Julia has a rich ecosystem for data analysis and visualization. Second, Julia is easier-to-use than Java (used for Repast and MASON), and provides a REPL (Read-Eval-Print-Loop) environment to build and analyze models interactively. Third, unlike Python (used for Mesa), Julia is easy-to-write but also fast to run. This is a crucial criterion for models that require considerable computations.Agents.jl provides users with core components that make it easy to build ABMS, run them in batch, collect model outputs, and visualize the results. Briefly, the framework eases the following tasks for the user, and is at the same time flexible enough to allow implementation of almost any ABM. Schedulers: users can choose from a range of activation regimes,i.e. the order with which agents activate, or implement a custom one. Spatial structures: the framework implements 1D, 2D, and 3D grids which can optionally have periodic boundary conditions, meaning that edges of a grid connect to their opposite edges. An agent exiting from one edge enters the grid from the opposite edge. Moreover, users can construct irregular networks as the space where the agents live. Data collection: users only specify the kind of data they need and the framework automatically collects them in a table. The collected data are then ready to be analyzed and visualized. Visualization users can create custom plots interactively from the simulation outputs using the Data Voyager platform. Furthermore, they can visualize agent distributions on 2D grids. Batch run: in agent-based modeling, we can rarely make conclusions from single simulation runs. Instead we run many replicates of a simulation and observe the mean behavior of the system. Agents.jl automates running simulation replicates and collecting and aggregating their results.Agents.jl is lightweight and modular. It has a short learning curve, and allows one to extend its capabilities and express complicated modeling scenarios. Agents.jl is inspired by Mesa framework for Python."
+    "text": "Agents.jl is a Julia framework for an agent-based modeling (ABM). It provides a structure and components for quickly implementing agent-based models, run them in batch, collect data, and visualize them. To that end, it provides the following functionalities: Default grids to run the simulation, including simple or toroidal 1D grids, simple or toroidal regular rectangular and triangular 2D grids, and simple or toroidal regular cubic 3D grids with von Neumann or Moore neighborhoods. Users can use their defined graphs too.\nAutomatic data collection in a DataFrame at desired intervals.\nExploring the simulation results interactively in Data Voyager 2.\nBatch running and batch data collection\nVisualize agent distributions on gridsMany agent-based modeling frameworks have been constructed to ease the process of building and analyzing ABMs (see here for a review). Notable examples are NetLogo, Repast, MASON, and Mesa. Implementing an ABM framework in Julia has several advantages. First, using a general purpose programming language instead of a custom scripting language, such as NetLogo\'s, removes a learning step and provides a single environment for building the models and analyzing their results. Julia has a rich ecosystem for data analysis and visualization. Second, Julia is easier-to-use than Java (used for Repast and MASON), and provides a REPL (Read-Eval-Print-Loop) environment to build and analyze models interactively. Third, unlike Python (used for Mesa), Julia is easy-to-write but also fast to run. This is a crucial criterion for models that require considerable computations.Agents.jl provides users with core components that make it easy to build ABMS, run them in batch, collect model outputs, and visualize the results. Briefly, the framework eases the following tasks for the user, and is at the same time flexible enough to allow implementation of almost any ABM. Schedulers: users can choose from a range of activation regimes,i.e. the order with which agents activate, or implement a custom one. Spatial structures: the framework implements 1D, 2D, and 3D grids which can optionally have periodic boundary conditions, meaning that edges of a grid connect to their opposite edges. An agent exiting from one edge enters the grid from the opposite edge. Moreover, users can construct irregular networks as the space where the agents live. Data collection: users only specify the kind of data they need and the framework automatically collects them in a table. The collected data are then ready to be analyzed and visualized. Visualization users can create custom plots interactively from the simulation outputs using the Data Voyager platform. Furthermore, they can visualize agent distributions on 2D grids. Batch run: in agent-based modeling, we can rarely make conclusions from single simulation runs. Instead we run many replicates of a simulation and observe the mean behavior of the system. Agents.jl automates running simulation replicates and collecting and aggregating their results.Agents.jl is lightweight and modular. It has a short learning curve, and allows one to extend its capabilities and express complicated modeling scenarios. Agents.jl is inspired by Mesa framework for Python."
 },
 
 {
@@ -22,6 +22,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Other features",
     "category": "section",
     "text": ""
+},
+
+{
+    "location": "#Distributed-computing-1",
+    "page": "Introduction",
+    "title": "Distributed computing",
+    "category": "section",
+    "text": "The batchrunner_parallel function allows you to run several simulation replicates in parallel and get all their results in a single Data Frame. It works the same as batchrunner except each replicate runs independently."
 },
 
 {
@@ -45,7 +53,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Introduction",
     "title": "Exploratory data analysis",
     "category": "section",
-    "text": "Julia has extensive tools for data analysis. Having the results of simulations in DataFrame format makes it easy to take advantage of most of such tools. Examples include the VegaLite.jl package for data visualization, which uses a grammar of graphics syntax to produce interactive plots. Moreover, DataVoyager.jl provides an interactive environment to build custom plots from DataFrames. Agents.jl provides visualize_data function that sends the simulation outputs to Data Voyager. "
+    "text": "Julia has extensive tools for data analysis. Having the results of simulations in DataFrame format makes it easy to take advantage of most of such tools. Examples include the VegaLite.jl package for data visualization, which uses a grammar of graphics syntax to produce interactive plots. Moreover, DataVoyager.jl provides an interactive environment to build custom plots from DataFrames. Agents.jl provides visualize_data function that sends the simulation outputs to Data Voyager."
 },
 
 {
@@ -53,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Introduction",
     "title": "Why we need agent-based modeling",
     "category": "section",
-    "text": "Agent-based models (ABMs) are increasingly recognized as the approach for studying complex systems. Complex systems cannot be fully understood using the traditional mathematical tools that aggregate the behavior of elements in a system. The behavior of a complex system depends on the behavior and interaction of its elements (agents). Small changes in the input to complex systems or the behavior of its agents can lead to large changes in system\'s outcome. That is to say a complex system\'s behavior is nonlinear, and that it is not the sum of the behavior of its elements. Use of ABMs have become feasible after the availability of computers and has been growing since, especially in modeling biological and economical systems, and has extended to social studies and archeology.An ABM consists of autonomous agents that behave given a set of rules. A classic and simple example of an ABM is a cellular automaton. A cellular automaton is a regular grid where each cell is an agent. Cells have different states, for example, on or off. A cell\'s state can change at each step depending on the state of its neighbors. This simple model can lead to unpredicted emergent patterns on the grid. Famous examples of which are Wolfram\'s rule 22 and rule 30 (see here and figure below).(Image: Wolfram\'s rule 22 implemented in Agents.jl) (Image: Wolfram\'s rule 30 implemented in Agents.jl)Another classic example of an ABM is Schelling\'s segregation model. This model also uses a regular grid and defines agents as the cells of the grid. Agents can be from different social groups. Agents are happy/unhappy based on the fraction of their neighbors that belong to the same group as they are. If they are unhappy, they keep moving to new locations until they are happy. Schelling\'s model shows that even small preferences of agents to have neighbors belonging to the same group (e.g. preferring that at least 30% of neighbors to be in the same group) could lead to total segregation of neighborhoods. This is another example of an emergent phenomenon from simple interactions of agents."
+    "text": "Agent-based models (ABMs) are increasingly recognized as the approach for studying complex systems. Complex systems cannot be fully understood using the traditional mathematical tools that aggregate the behavior of elements in a system. The behavior of a complex system depends on the behavior and interaction of its elements (agents). Small changes in the input to complex systems or the behavior of its agents can lead to large changes in system\'s outcome. That is to say a complex system\'s behavior is nonlinear, and that it is not the sum of the behavior of its elements. Use of ABMs have become feasible after the availability of computers and has been growing since, especially in modeling biological and economical systems, and has extended to social studies and archaeology.An ABM consists of autonomous agents that behave given a set of rules. A classic and simple example of an ABM is a cellular automaton. A cellular automaton is a regular grid where each cell is an agent. Cells have different states, for example, on or off. A cell\'s state can change at each step depending on the state of its neighbors. This simple model can lead to unpredictable emergent patterns on the grid. Famous examples of which are Wolfram\'s rule 22 and rule 30 (see here and figure below).(Image: Wolfram\'s rule 22 implemented in Agents.jl) (Image: Wolfram\'s rule 30 implemented in Agents.jl)Another classic example of an ABM is Schelling\'s segregation model. This model also uses a regular grid and defines agents as the cells of the grid. Agents can be from different social groups. Agents are happy/unhappy based on the fraction of their neighbors that belong to the same group as they are. If they are unhappy, they keep moving to new locations until they are happy. Schelling\'s model shows that even small preferences of agents to have neighbors belonging to the same group (e.g. preferring that at least 30% of neighbors to be in the same group) could lead to total segregation of neighborhoods. This is another example of an emergent phenomenon from simple interactions of agents."
 },
 
 {
@@ -73,11 +81,35 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "#Running-tests-1",
+    "page": "Introduction",
+    "title": "Running tests",
+    "category": "section",
+    "text": "To run tests, just run the runtests.jl file in the test folder:$julia runtests.jl"
+},
+
+{
     "location": "#Table-of-contents-1",
     "page": "Introduction",
     "title": "Table of contents",
     "category": "section",
     "text": ""
+},
+
+{
+    "location": "mesa/#",
+    "page": "Comparison against Mesa",
+    "title": "Comparison against Mesa",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "mesa/#Agents.jl-vs-Mesa:-speed-comparison-1",
+    "page": "Comparison against Mesa",
+    "title": "Agents.jl vs Mesa: speed comparison",
+    "category": "section",
+    "text": "Julia code can run much faster than Python. And since Agents.jl is a minimal framework, an agent-based model written in Julia and using Agents.jl can be much faster than the same algorithm written in Python and using the Mesa package.Here is a benchmark of a version of the forest fire model implemented both in Agents.jl and in Mesa. This version of the model is simpler than the one in the examples folder. The Python implementation is taken from Mesa\'s Github page. The Julia implementation follows the same logic as the Python implementation. The code for both implementations is in the benchmark folder on Agents.jl\'s Github page.Briefly, the model has two parameters: grid size and forest density. It initially plants trees on the grid given the density. Next, it sets trees on one edge of the forest on fire. During each iteration, neighboring trees to a tree on fire catch fire and those trees already on fire burn down. There is no growth of trees.Figure below shows the time it takes for 100 iterations of a \"forest fire\" model with a density of 0.6 in Mesa and Agents.jl. The x-axis of the figure is different grid sizes. The model implemented in Agents.jl is up to about 8 times faster than the model implemented in Mesa.(Image: Speed comparison of a version of \"forest fire\" model in Agents.jl vs Mesa.)"
 },
 
 {
@@ -461,7 +493,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Built-in funtions",
     "title": "Agents.data_collector",
     "category": "function",
-    "text": "data_collector(properties::Array{Symbol}, aggregators::Array, steps_to_collect_data::Array{Int64}, model::AbstractModel, step::Integer)\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(properties::Array{Symbol}, aggregators::Array, steps_to_collect_data::Array{Int64}, model::AbstractModel, step::Integer, df::DataFrame)\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(propagg::Dict, steps_to_collect_data::Array{Int64}, model::AbstractModel, step::Integer)\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(propagg::Dict, steps_to_collect_data::Array{Int64}, model::AbstractModel, step::Integer, df::DataFrame)\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(properties::Array{Symbol}, steps_to_collect_data::Array{Int64}, model::AbstractModel, step::Integer)\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(properties::Array{Symbol}, steps_to_collect_data::Array{Int64}, model::AbstractModel, step::Integer, df::DataFrame)\n\nUsed in the step! function.\n\n\n\n\n\n"
+    "text": "data_collector(properties::Array{Symbol}, aggregators::Array, steps_to_collect_data::AbstractArray{T}, model::AbstractModel, step::Integer)  where T<: Integer\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(properties::Array{Symbol}, aggregators::Array, steps_to_collect_data::AbstractArray{T}, model::AbstractModel, step::Integer, df::DataFrame) T<:Integer\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(propagg::Dict, steps_to_collect_data::AbstractArray{T}, model::AbstractModel, step::Integer) where T<: Integer\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(propagg::Dict, steps_to_collect_data::AbstractArray{T}, model::AbstractModel, step::Integer, df::DataFrame) where T<:Integer\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(properties::Array{Symbol}, steps_to_collect_data::AbstractArray{T}, model::AbstractModel, step::Integer) where T<:Integer\n\nUsed in the step! function.\n\n\n\n\n\ndata_collector(properties::Array{Symbol}, steps_to_collect_data::AbstractArray{T}, model::AbstractModel, step::Integer, df::DataFrame)  where T<:Integer\n\nUsed in the step! function.\n\n\n\n\n\n"
 },
 
 {
