@@ -65,14 +65,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "#Tutorial-1",
-    "page": "Introduction",
-    "title": "Tutorial",
-    "category": "section",
-    "text": "For a quick tutorial see the example models. I recommend starting with Schelling\'s segregation model."
-},
-
-{
     "location": "#Installation-1",
     "page": "Introduction",
     "title": "Installation",
@@ -93,111 +85,95 @@ var documenterSearchIndex = {"docs": [
     "page": "Introduction",
     "title": "Table of contents",
     "category": "section",
-    "text": ""
+    "text": "Pages = [\"index.md\", \"tutorial.md\", \"boltzmann_example01.md\", \"forest_fire.md\", \"CA.md\", \"builtin_functions.md\", \"mesa.md\"]"
 },
 
 {
-    "location": "mesa/#",
-    "page": "Comparison against Mesa",
-    "title": "Comparison against Mesa",
+    "location": "tutorial/#",
+    "page": "Tutorial",
+    "title": "Tutorial",
     "category": "page",
     "text": ""
 },
 
 {
-    "location": "mesa/#Agents.jl-vs-Mesa:-speed-comparison-1",
-    "page": "Comparison against Mesa",
-    "title": "Agents.jl vs Mesa: speed comparison",
-    "category": "section",
-    "text": "Julia code can run much faster than Python. And since Agents.jl is a minimal framework, an agent-based model written in Julia and using Agents.jl can be much faster than the same algorithm written in Python and using the Mesa package.Here is a benchmark of a version of the forest fire model implemented both in Agents.jl and in Mesa. This version of the model is simpler than the one in the examples folder. The Python implementation is taken from Mesa\'s Github page. The Julia implementation follows the same logic as the Python implementation. The code for both implementations is in the benchmark folder on Agents.jl\'s Github page.Briefly, the model has two parameters: grid size and forest density. It initially plants trees on the grid given the density. Next, it sets trees on one edge of the forest on fire. During each iteration, neighboring trees to a tree on fire catch fire and those trees already on fire burn down. There is no growth of trees.Figure below shows the time it takes for 100 iterations of a \"forest fire\" model with a density of 0.6 in Mesa and Agents.jl. The x-axis of the figure is different grid sizes. The model implemented in Agents.jl is up to about 8 times faster than the model implemented in Mesa.(Image: Speed comparison of a version of \"forest fire\" model in Agents.jl vs Mesa.)"
-},
-
-{
-    "location": "schelling/#",
-    "page": "Schelling\'s segregation model",
-    "title": "Schelling\'s segregation model",
-    "category": "page",
-    "text": ""
-},
-
-{
-    "location": "schelling/#Schelling\'s-segregation-model-1",
-    "page": "Schelling\'s segregation model",
-    "title": "Schelling\'s segregation model",
-    "category": "section",
-    "text": ""
-},
-
-{
-    "location": "schelling/#Agents.jl\'s-architecture-1",
-    "page": "Schelling\'s segregation model",
+    "location": "tutorial/#Agents.jl\'s-architecture-1",
+    "page": "Tutorial",
     "title": "Agents.jl\'s architecture",
     "category": "section",
-    "text": "Agents.jl is composed of components for building models, building and managing space structures, collecting data, running batch simulations, and data visualization.Agents.jl structures simulations in three components: a model component that keeps all model-level variables and data, an agent component that keeps all agent-level variables and data, and a space component that keeps space-level data.For building any ABM, users have to define at least three objects (model, agent and space) and one function (Fig. 1). Agents.jl\'s tools manage the rest of the path to producing data and visualizations (Fig. 1). We now demonstrate Agents.jl\'s architecture and features through building Schelling\'s segregation model.(Image: Fig. 1. __Path from building a model to gaining information from the model using Agents.jl.__ The box in cyan is what the user has to provide and the boxes in green are what Agents.jl provides.)We implement the following definition of Schelling\'s segregation model:Agents are of two kind (0 or 1).\nEach agent has eight neighbors (Moore neighborhoods).\nIf an agent is in the same group with at least three neighbors, then it is happy.\nIf an agent is unhappy, it keeps moving to new locations until it is happy."
+    "text": "Agents.jl is composed of components for building models, building and managing space structures, collecting data, running batch simulations, and data visualization.Agents.jl structures simulations in three components: a model component that keeps all model-level variables and data, an agent component that keeps all agent-level variables and data, and a space component that keeps space-level data.For building any ABM, users have to define at least three objects (model, agent and space) and one function (Fig. 1). Agents.jl\'s tools manage the rest of the path to producing data and visualizations (Fig. 1).(Image: Fig. 1. __Path from building a model to gaining information from the model using Agents.jl.__ The box in cyan is what the user has to provide and the boxes in green are what Agents.jl provides.)A model object is a subtype of AbstractModel. Making the model a subtype of AbstractModel will make Agents.jl methods available to the model. It needs to have the following three fields: scheduler, space, and agents. More fields can be added if needed. It is best to make any model parameter a field of the model object.The scheduler field accepts a function that defines the order with which agents will activate at each step. The function should accept the model object as its input and return a list of agent indices. Agents.jl provides three schedulers: as_added to activate agents as they have been added to the model, random_activation to activate agents randomly, and partial_activation to activate only a random fraction of agents at each step.The space object is always a subtype of AbstractSpace and should have at least the following three fields.First, a space field which holds the spatial structure of the model. Agents.jl uses network structures from the LightGraphs package to represent space.  It provides 1D, 2D and 3D grids. The grids may have periodic boundary conditions, meaning nodes on the left and right edges and top and bottom edges are connected to one another. Furthermore, the nodes on a grid may have von Neumann neighborhoods, i.e. only connect to their orthogonal neighbors, or Moore neighborhoods, i.e. connect to their orthogonal and diagonal neighbors. Users may also provide arbitrary networks as their model\'s spatial structure.\nSecond, dimensions of the grid or network in a Tuple.\nThird, agent_positions field. This field is an array of arrays for each node of the network. Each inner array will record the ID of the agents on that position. Agents.jl keeps the position of agents in two places. One in each agent\'s object and one in the agent_positions.Agent objects are subtypes of AbstractAgent and should always have the following fields: id which stores agent IDs as integers, and pos to store each agent\'s position. Agent positions can be tuple of integers as coordinates of nodes of a grid (1D, 2D or 3D). Positions can also be integers only, referring to the number of a node in an irregular network.step function. Any ABM model should have at least one and at most two step functions. An agent step function is always required. Such an agent step function defines what happens to an agent when it activates. Sometimes we also need a function that changes all agents at once, or changes a model property. In such cases, we can also provide a model step function.An agent step function should only accept two arguments: first, an agent object, and second, a model object.The model step function should accept only one argument, that is the model object. It is possible to only have a model step function, in which case users have to use the built-in dummystep as the agent step function.Running the model. We can run the model using the built-in step! function. This will update the agents and the model as defined by the agent_step! function."
 },
 
 {
-    "location": "schelling/#Defining-a-model-object-1",
-    "page": "Schelling\'s segregation model",
+    "location": "tutorial/#Schelling\'s-segregation-model-Example-1",
+    "page": "Tutorial",
+    "title": "Schelling\'s segregation model Example",
+    "category": "section",
+    "text": "We now demonstrate Agents.jl\'s architecture and features through building the following definition of Schelling\'s segregation model:Agents are of two kind (0 or 1).\nEach agent has eight neighbors (Moore neighborhoods).\nIf an agent is in the same group with at least three neighbors, then it is happy.\nIf an agent is unhappy, it keeps moving to new locations until it is happy."
+},
+
+{
+    "location": "tutorial/#Defining-a-model-object-1",
+    "page": "Tutorial",
     "title": "Defining a model object",
     "category": "section",
-    "text": "Building models using Agents.jl, we always start by defining three basic objects: one for the model, one for the the agents and one for the space.A model object is a subtype of AbstractModel. Making the model a subtype of AbstractModel will make Agents.jl methods available to the model. It needs to have the following three fields: scheduler, space, and agents. We can add more fields if needed.The scheduler field accepts a function that defines the order with which agents will activate at each step. The function should accept the model object as its input and return a list of agent indices. Agents.jl provides three schedulers: as_added to activate agents as they have been added to the model, random_activation to activate agents randomly, and partial_activation to activate only a random fraction of agents at each step.using Agents\r\n\r\n\"\"\"\r\nAbstractModel type for the Schelling Model\r\n\r\nObject should always be a subtype of AbstractModel.\r\n\"\"\"\r\nmutable struct SchellingModel{T<:Integer, Y<:AbstractArray,\r\n                              Z<:AbstractSpace} <: AbstractModel \r\n\r\n  \"A field of the model for a space object, always a subtype of AbstractSpace.\"\r\n  space::Z\r\n  \"A list of agents.\"\r\n  agents::Y\r\n  \"A field for the scheduler function.\"\r\n  scheduler::Function\r\n  \"The minimum number of neighbors for agent to be happy.\"\r\n  min_to_be_happy::T\r\nendIt is best to make any model parameter a field of the model object. We add the minimum number of neighbors of the same kind for an agent to be happy as a field of the model (min_to_be_happy). "
+    "text": "Building models using Agents.jl, we always start by defining three basic objects: one for the model, one for the the agents and one for the space.using Agents\n\n\"\"\"\nAbstractModel type for the Schelling Model\n\nObject should always be a subtype of AbstractModel.\n\"\"\"\nmutable struct SchellingModel{T<:Integer, Y<:AbstractArray,\n                              Z<:AbstractSpace} <: AbstractModel \n\n  \"A field of the model for a space object, always a subtype of AbstractSpace.\"\n  space::Z\n  \"A list of agents.\"\n  agents::Y\n  \"A field for the scheduler function.\"\n  scheduler::Function\n  \"The minimum number of neighbors for agent to be happy.\"\n  min_to_be_happy::T\nendWe add the minimum number of neighbors of the same kind for an agent to be happy as a field of the model (min_to_be_happy). "
 },
 
 {
-    "location": "schelling/#Defining-an-agent-object-1",
-    "page": "Schelling\'s segregation model",
+    "location": "tutorial/#Defining-an-agent-object-1",
+    "page": "Tutorial",
     "title": "Defining an agent object",
     "category": "section",
-    "text": "Next, we define an agent object. Agent objects are subtypes of AbstractAgent and should always have the following fields: id which stores agent IDs as integers, and pos to store each agent\'s position. Agent positions can be tuple of integers as coordinates of nodes of a grid (1D, 2D or 3D). Positions can also be integers only, referring to the number of a node in an irregular network.\"\"\"\r\nAbstractAgent type for the Schelling Agent\r\n\r\nObject should always be a subtype of AbstractAgent.\r\n\"\"\"\r\nmutable struct SchellingAgent{T<:Integer} <: AbstractAgent\r\n  \"The identifier number of the agent.\"\r\n  id::T\r\n  \"The x, y location of the agent.\"\r\n  pos::Tuple{T, T}\r\n  \"\"\"\r\n  Whether or not the agent is happy with cell.\r\n\r\n  Where true is \"happy\" and false is \"unhappy\"\r\n\r\n  \"\"\"\r\n  mood::Bool\r\n  \"The group of the agent, determines mood as it interacts with neighbors.\"\r\n  group::T\r\nendWe add two more fields for this model, namely a mood field which will store true for a happy agent and false for an unhappy one, and an group field which stores 0 or 1 representing two groups."
+    "text": "Next, we define an agent object.\"\"\"\nAbstractAgent type for the Schelling Agent\n\nObject should always be a subtype of AbstractAgent.\n\"\"\"\nmutable struct SchellingAgent{T<:Integer} <: AbstractAgent\n  \"The identifier number of the agent.\"\n  id::T\n  \"The x, y location of the agent.\"\n  pos::Tuple{T, T}\n  \"\"\"\n  Whether or not the agent is happy with cell.\n\n  Where true is \"happy\" and false is \"unhappy\"\n\n  \"\"\"\n  mood::Bool\n  \"The group of the agent, determines mood as it interacts with neighbors.\"\n  group::T\nendWe add two more fields for this model, namely a mood field which will store true for a happy agent and false for an unhappy one, and an group field which stores 0 or 1 representing two groups."
 },
 
 {
-    "location": "schelling/#Defining-a-space-object-1",
-    "page": "Schelling\'s segregation model",
+    "location": "tutorial/#Defining-a-space-object-1",
+    "page": "Tutorial",
     "title": "Defining a space object",
     "category": "section",
-    "text": "Finally, we define a space object. The space object is always a subtype of AbstractSpace and should have at least the following three fields. First, a space field which holds the spatial structure of the model. Agents.jl uses network structures from the LightGraphs package to represent space.  It provides 1D, 2D and 3D grids. The grids may have periodic boundary conditions, meaning nodes on the left and right edges and top and bottom edges are connected to one another. Furthermore, the nodes on a grid may have von Neumann neighborhoods, i.e. only connect to their orthogonal neighbors, or Moore neighborhoods, i.e. connect to their orthogonal and diagonal neighbors. Users may also provide arbitrary networks as their model\'s spatial structure.The second field of the space object is the dimensions of the grid or network. Lastly, every space object should have an agent_positions field. This field is an array of arrays for each node of the network. Each inner array will record the ID of the agents on that position. Agents.jl keeps the position of agents in two places. One in each agent\'s object and one in the agent_positions.\"The space of the experiment.\"\r\nmutable struct MyGrid{T<:Integer, Y<:AbstractArray} <: AbstractSpace\r\n  \"Dimensions of the grid.\"\r\n  dimensions::Tuple{T, T}\r\n  \"The space type.\"\r\n  space::SimpleGraph\r\n  \"An array of arrays for each grid node.\"\r\n  agent_positions::Y  \r\nend"
+    "text": "Finally, we define a space object.\"The space of the experiment.\"\nmutable struct MyGrid{T<:Integer, Y<:AbstractArray} <: AbstractSpace\n  \"Dimensions of the grid.\"\n  dimensions::Tuple{T, T}\n  \"The space type.\"\n  space::SimpleGraph\n  \"An array of arrays for each grid node.\"\n  agent_positions::Y  \nend"
 },
 
 {
-    "location": "schelling/#Instantiating-the-model-1",
-    "page": "Schelling\'s segregation model",
+    "location": "tutorial/#Instantiating-the-model-1",
+    "page": "Tutorial",
     "title": "Instantiating the model",
     "category": "section",
-    "text": "Now that we have defined the basic objects, we should instantiate the model. We put the model instantiation in a function so that it will be easy to recreate the model and change its parameters.\"Function to instantiate the model.\"\r\nfunction instantiate_model(;numagents=320, griddims=(20, 20), min_to_be_happy=3)\r\n\r\n  # 1) Creates an array of empty arrays as many as there are agents.\r\n  agent_positions = [Int64[] for i in 1:gridsize(griddims)]\r\n\r\n  # 2) Use MyGrid to create a grid from griddims and agent_positions using the\r\n  #    grid function.\r\n  mygrid = MyGrid(griddims, grid(griddims, false, true), agent_positions)\r\n\r\n  # 3) Instantiate the model using mygrid, the SchellingAgent type, the\r\n  #    random_activation function from Agents.jl and the\r\n  #    argument min_to_be_happy.\r\n  model = SchellingModel(mygrid, SchellingAgent[], random_activation,\r\n                         min_to_be_happy) \r\n\r\n  # 4) Create a 1-dimension list of agents, balanced evenly between group 0\r\n  #    and group 1.\r\n  agents = vcat(\r\n    [SchellingAgent(Int(i), (1,1), false, 0) for i in 1:(numagents/2)],\r\n    [SchellingAgent(Int(i), (1,1), false, 1) for i in (numagents/2)+1:numagents]\r\n  )\r\n\r\n  # 5) Add the agents to the model.\r\n  for agent in agents\r\n    # Use add_agent_single (from Agents.jl) to add the agents to the grid at\r\n    # random locations.\r\n    add_agent_single!(agent, model)\r\n  end\r\n  return model\r\nendExplanations below correspond to the numbered lines in the code snippet above:Creates an array of empty arrays as many as there are agents.\nCreates a 2D grid with nodes that have Moore neighborhoods. The grid does not have periodic edges.\nInstantiates the model. It uses an empty array for agents.\nCreates an array of agents with two different groups. All agents have a temporary coordinate of (1, 1).\nAdds agents to random nodes in space and to the agents array in the model object. add_agent_single! ensures that there are no more than one agent per node."
+    "text": "Now that we have defined the basic objects, we should instantiate the model. We put the model instantiation in a function so that it will be easy to recreate the model and change its parameters.\"Function to instantiate the model.\"\nfunction instantiate_model(;numagents=320, griddims=(20, 20), min_to_be_happy=3)\n\n  # 1) Creates an array of empty arrays as many as there are agents.\n  agent_positions = [Int64[] for i in 1:gridsize(griddims)]\n\n  # 2) Use MyGrid to create a grid from griddims and agent_positions using the\n  #    grid function.\n  mygrid = MyGrid(griddims, grid(griddims, false, true), agent_positions)\n\n  # 3) Instantiate the model using mygrid, the SchellingAgent type, the\n  #    random_activation function from Agents.jl and the\n  #    argument min_to_be_happy.\n  model = SchellingModel(mygrid, SchellingAgent[], random_activation,\n                         min_to_be_happy) \n\n  # 4) Create a 1-dimension list of agents, balanced evenly between group 0\n  #    and group 1.\n  agents = vcat(\n    [SchellingAgent(Int(i), (1,1), false, 0) for i in 1:(numagents/2)],\n    [SchellingAgent(Int(i), (1,1), false, 1) for i in (numagents/2)+1:numagents]\n  )\n\n  # 5) Add the agents to the model.\n  for agent in agents\n    # Use add_agent_single (from Agents.jl) to add the agents to the grid at\n    # random locations.\n    add_agent_single!(agent, model)\n  end\n  return model\nendExplanations below correspond to the numbered lines in the code snippet above:Creates an array of empty arrays as many as there are agents.\nCreates a 2D grid with nodes that have Moore neighborhoods. The grid does not have periodic edges.\nInstantiates the model. It uses an empty array for agents.\nCreates an array of agents with two different groups. All agents have a temporary coordinate of (1, 1).\nAdds agents to random nodes in space and to the agents array in the model object. add_agent_single! ensures that there are no more than one agent per node."
 },
 
 {
-    "location": "schelling/#Defining-a-step-function-1",
-    "page": "Schelling\'s segregation model",
+    "location": "tutorial/#Defining-a-step-function-1",
+    "page": "Tutorial",
     "title": "Defining a step function",
     "category": "section",
-    "text": "The last step of building our ABM is defining a step function. Any ABM model should have at least one and at most two step functions. An agent step function is always required. Such an agent step function defines what happens to an agent when it activates. Sometimes we will need also need a function that changes all agents at once, or changes a model property. In such cases, we can also provide a model step function.An agent step function should only accept two arguments, the first of which an agent object and the second of which a model object. The model step function should accept only one argument, that is the model object. It is possible to only have a model step function, in which case users have to use the built-in dummystep as the agent step function.\"Move a single agent until a satisfactory location is found.\"\r\nfunction agent_step!(agent, model)\r\n  if agent.mood == true\r\n    return\r\n  end\r\n  while agent.mood == false\r\n    neighbor_cells = node_neighbors(agent, model)\r\n    count_neighbors_same_group = 0\r\n\r\n    # For each neighbor, get group and compare to current agent\'s group...\r\n    # ...and increment count_neighbors_same_group as appropriately.  \r\n    for neighbor_cell in neighbor_cells\r\n      node_contents = get_node_contents(neighbor_cell, model)\r\n      # Skip iteration if the node is empty.\r\n      if length(node_contents) == 0\r\n        continue\r\n      else\r\n        # Otherwise, get the first agent in the node...\r\n        node_contents = node_contents[1]\r\n      end\r\n      # ...and increment count_neighbors_same_group if the neighbor\'s group is\r\n      # the same.\r\n      neighbor_agent_group = model.agents[node_contents].group\r\n      if neighbor_agent_group == agent.group\r\n        count_neighbors_same_group += 1\r\n      end\r\n    end\r\n\r\n    # After evaluating and adding up the groups of the neighbors, decide\r\n    # whether or not to move the agent.\r\n    # If count_neighbors_same_group is at least the min_to_be_happy, set the\r\n    # mood to true. Otherwise, move the agent using move_agent_single.\r\n    if count_neighbors_same_group >= model.min_to_be_happy\r\n      agent.mood = true\r\n    else\r\n      move_agent_single!(agent, model)\r\n    end\r\n  end\r\nendFor the purpose of this implementation of Schelling\'s segregation model, we only need an agent step function.When an agent activates, it follows the following process:If the agent is already happy, it does not do anything.\nIf it is not happy, it counts the number of its neighbors that are from the same group.\nIf this count is equal to min_to_be_happy, the agent will be happy...\n...otherwise the agent will keep moving to random empty nodes on the grid until it is happy.For doing these operations, we used some of the built-in functions of Agents.jl, such as node_neighbors that returns the neighboring nodes of the node on which the agent resides, get_node_contents that returns the IDs of the agents on a given node, and move_agent_single! which moves agents to random empty nodes on the grid. A full list of built-in functions and their explanations are available in the online manual."
+    "text": "Finally, we define a step function to determine what happens to an agent when activated.\"Move a single agent until a satisfactory location is found.\"\nfunction agent_step!(agent, model)\n  if agent.mood == true\n    return\n  end\n  while agent.mood == false\n    neighbor_cells = node_neighbors(agent, model)\n    count_neighbors_same_group = 0\n\n    # For each neighbor, get group and compare to current agent\'s group...\n    # ...and increment count_neighbors_same_group as appropriately.  \n    for neighbor_cell in neighbor_cells\n      node_contents = get_node_contents(neighbor_cell, model)\n      # Skip iteration if the node is empty.\n      if length(node_contents) == 0\n        continue\n      else\n        # Otherwise, get the first agent in the node...\n        node_contents = node_contents[1]\n      end\n      # ...and increment count_neighbors_same_group if the neighbor\'s group is\n      # the same.\n      neighbor_agent_group = model.agents[node_contents].group\n      if neighbor_agent_group == agent.group\n        count_neighbors_same_group += 1\n      end\n    end\n\n    # After evaluating and adding up the groups of the neighbors, decide\n    # whether or not to move the agent.\n    # If count_neighbors_same_group is at least the min_to_be_happy, set the\n    # mood to true. Otherwise, move the agent using move_agent_single.\n    if count_neighbors_same_group >= model.min_to_be_happy\n      agent.mood = true\n    else\n      move_agent_single!(agent, model)\n    end\n  end\nendFor the purpose of this implementation of Schelling\'s segregation model, we only need an agent step function.When an agent activates, it follows the following process:If the agent is already happy, it does not do anything.\nIf it is not happy, it counts the number of its neighbors that are from the same group.\nIf this count is equal to min_to_be_happy, the agent will be happy...\n...otherwise the agent will keep moving to random empty nodes on the grid until it is happy.For doing these operations, we used some of the built-in functions of Agents.jl, such as node_neighbors that returns the neighboring nodes of the node on which the agent resides, get_node_contents that returns the IDs of the agents on a given node, and move_agent_single! which moves agents to random empty nodes on the grid. A full list of built-in functions and their explanations are available in the online manual."
 },
 
 {
-    "location": "schelling/#Running-the-model-1",
-    "page": "Schelling\'s segregation model",
+    "location": "tutorial/#Running-the-model-1",
+    "page": "Tutorial",
     "title": "Running the model",
     "category": "section",
-    "text": "We can run each step of the function using the built-in step! function. This will update the agents and the model as defined by the agent_step! function.# Instantiate the model with 370 agents on a 20 by 20 grid. \r\nmodel = instantiate_model(numagents=370, griddims=(20,20), min_to_be_happy=3)\r\nstep!(agent_step!, model)  # Run the model one step...\r\nstep!(agent_step!, model, 3)  # ...run the model multiple (3) steps."
+    "text": "# Instantiate the model with 370 agents on a 20 by 20 grid. \nmodel = instantiate_model(numagents=370, griddims=(20,20), min_to_be_happy=3)\nstep!(agent_step!, model)  # Run the model one step...\nstep!(agent_step!, model, 3)  # ...run the model multiple (3) steps."
 },
 
 {
-    "location": "schelling/#Running-the-model-and-collecting-data-1",
-    "page": "Schelling\'s segregation model",
+    "location": "tutorial/#Running-the-model-and-collecting-data-1",
+    "page": "Tutorial",
     "title": "Running the model and collecting data",
     "category": "section",
-    "text": "There is however a more efficient way to run the model and collect data. We can use the same step! function with more arguments to run multiple steps and collect values of our desired fields from every agent and put these data in a DataFrame object.# Instantiate the model with 370 agents on a 20 by 20 grid. \r\nmodel = instantiate_model(numagents=370, griddims=(20,20), min_to_be_happy=3)\r\n# An array of Symbols for the agent fields that are to be collected.\r\nagent_properties = [:pos, :mood, :group]\r\n# Specifies at which steps data should be collected.\r\nsteps_to_collect_data = collect(1:2)\r\n# Use the step function to run the model and collect data into a DataFrame.\r\ndata = step!(agent_step!, model, 2, agent_properties, steps_to_collect_data)agent_properties is an array of Symbols for the agent fields that we want to collect. steps_to_collect_data specifies at which steps data should be collected."
+    "text": "There is however a more efficient way to run the model and collect data. We can use the same step! function with more arguments to run multiple steps and collect values of our desired fields from every agent and put these data in a DataFrame object.# Instantiate the model with 370 agents on a 20 by 20 grid. \nmodel = instantiate_model(numagents=370, griddims=(20,20), min_to_be_happy=3)\n# An array of Symbols for the agent fields that are to be collected.\nagent_properties = [:pos, :mood, :group]\n# Specifies at which steps data should be collected.\nsteps_to_collect_data = collect(1:2)\n# Use the step function to run the model and collect data into a DataFrame.\ndata = step!(agent_step!, model, 2, agent_properties, steps_to_collect_data)agent_properties is an array of Symbols for the agent fields that we want to collect. steps_to_collect_data specifies at which steps data should be collected."
 },
 
 {
-    "location": "schelling/#Visualizing-the-data-1",
-    "page": "Schelling\'s segregation model",
+    "location": "tutorial/#Visualizing-the-data-1",
+    "page": "Tutorial",
     "title": "Visualizing the data",
     "category": "section",
-    "text": "We can use the visualize_2D_agent_distribution function to plot the distribution of agents on a 2D grid at every generation (Fig. 1):# Use visualize_2D_agent_distribution to plot distribution of agents at every step.\r\nfor i in 1:2\r\n  visualize_2D_agent_distribution(data, model, Symbol(\"pos_$i\"),\r\n  types=Symbol(\"group_$i\"), savename=\"step_$i\", cc=Dict(0=>\"blue\", 1=>\"red\"))\r\nendThe first and second arguments of the visualize_2D_agent_distribution are the data and the model objects. The third argument is the column name in data that has the position of each agent. The fourth argument is the column name in data that stores agents\'  groups. savename is the name of the plot file. cc is a dictionary that defines the colors of each agent group."
+    "text": "We can use the visualize_2D_agent_distribution function to plot the distribution of agents on a 2D grid at every generation (Fig. 1):# Use visualize_2D_agent_distribution to plot distribution of agents at every step.\nfor i in 1:2\n  visualize_2D_agent_distribution(data, model, Symbol(\"pos_$i\"),\n  types=Symbol(\"group_$i\"), savename=\"step_$i\", cc=Dict(0=>\"blue\", 1=>\"red\"))\nendThe first and second arguments of the visualize_2D_agent_distribution are the data and the model objects. The third argument is the column name in data that has the position of each agent. The fourth argument is the column name in data that stores agents\'  groups. savename is the name of the plot file. cc is a dictionary that defines the colors of each agent group."
 },
 
 {
@@ -526,6 +502,22 @@ var documenterSearchIndex = {"docs": [
     "title": "Visualization functions",
     "category": "section",
     "text": "agents_plots_complete\r\nvisualize_data\r\nvisualize_2D_agent_distribution\r\nvisualize_1DCA\r\nvisualize_2DCA"
+},
+
+{
+    "location": "mesa/#",
+    "page": "Comparison against Mesa",
+    "title": "Comparison against Mesa",
+    "category": "page",
+    "text": ""
+},
+
+{
+    "location": "mesa/#Agents.jl-vs-Mesa:-speed-comparison-1",
+    "page": "Comparison against Mesa",
+    "title": "Agents.jl vs Mesa: speed comparison",
+    "category": "section",
+    "text": "Julia code can run much faster than Python. And since Agents.jl is a minimal framework, an agent-based model written in Julia and using Agents.jl can be much faster than the same algorithm written in Python and using the Mesa package.Here is a benchmark of a version of the forest fire model implemented both in Agents.jl and in Mesa. This version of the model is simpler than the one in the examples folder. The Python implementation is taken from Mesa\'s Github page. The Julia implementation follows the same logic as the Python implementation. The code for both implementations is in the benchmark folder on Agents.jl\'s Github page.Briefly, the model has two parameters: grid size and forest density. It initially plants trees on the grid given the density. Next, it sets trees on one edge of the forest on fire. During each iteration, neighboring trees to a tree on fire catch fire and those trees already on fire burn down. There is no growth of trees.Figure below shows the time it takes for 100 iterations of a \"forest fire\" model with a density of 0.6 in Mesa and Agents.jl. The x-axis of the figure is different grid sizes. The model implemented in Agents.jl is up to about 8 times faster than the model implemented in Mesa.(Image: Speed comparison of a version of \"forest fire\" model in Agents.jl vs Mesa.)"
 },
 
 ]}
