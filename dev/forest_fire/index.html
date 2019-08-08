@@ -92,6 +92,7 @@ data = step!(dummystep, forest_step!, forest, 100, agent_properties, aggregators
 
 # explore data visually
 visualize_data(data)</code></pre><p>Alternatively, collect agent positions and plot them on a 2D grid</p><pre><code class="language-julia">forest = model_initiation(f=0.05, d=0.8, p=0.01, griddims=(20, 20), seed=2)
+agent_properties = [:status, :pos]
 data = step!(dummystep, forest_step!, forest, 10, agent_properties, collect(1:10))
 for i in 1:10
   visualize_2D_agent_distribution(data, forest, Symbol(&quot;pos_$i&quot;), types=Symbol(&quot;status_$i&quot;), savename=&quot;step_$i&quot;, cc=Dict(true=&gt;&quot;green&quot;, false=&gt;&quot;red&quot;))
