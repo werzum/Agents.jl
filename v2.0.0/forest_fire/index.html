@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Forest fire · Agents.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">Agents.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Introduction</a></li><li><a class="tocitem" href="../tutorial/">Tutorial</a></li><li><a class="tocitem" href="../api/">API</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../wealth_distribution/">Wealth distribution</a></li><li class="is-active"><a class="tocitem" href>Forest fire</a><ul class="internal"><li><a class="tocitem" href="#Defining-the-core-structures-1"><span>Defining the core structures</span></a></li><li><a class="tocitem" href="#Defining-the-step!-1"><span>Defining the step!</span></a></li><li><a class="tocitem" href="#Running-the-model-1"><span>Running the model</span></a></li></ul></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Forest fire</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Forest fire</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaDynamics/Agents.jl/blob/master/examples/forest_fire.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Forest-fire-model-1"><a class="docs-heading-anchor" href="#Forest-fire-model-1">Forest fire model</a><a class="docs-heading-anchor-permalink" href="#Forest-fire-model-1" title="Permalink"></a></h1><p>The forest fire model is defined as a cellular automaton on a grid. A cell can be empty, occupied by a tree, or burning. The model of <a href="https://en.wikipedia.org/wiki/Forest-fire_model">Drossel and Schwabl (1992)</a> is defined by four rules which are executed simultaneously:</p><ol><li>A burning cell turns into an empty cell</li><li>A tree will burn if at least one neighbor is burning</li><li>A tree ignites with probability <code>f</code> even if no neighbor is burning</li><li>An empty space fills with a tree with probability <code>p</code></li></ol><p>The forest has an innate density <code>d</code>, which is the proportion of trees initialized as green. This model is an example that does <em>not</em> have an <code>agent_step!</code> function. It only uses a <code>model_step!</code></p><h2 id="Defining-the-core-structures-1"><a class="docs-heading-anchor" href="#Defining-the-core-structures-1">Defining the core structures</a><a class="docs-heading-anchor-permalink" href="#Defining-the-core-structures-1" title="Permalink"></a></h2><p>We start by defining the agent type</p><pre><code class="language-julia">using Agents, Random
+
+mutable struct Tree &lt;: AbstractAgent
+    id::Int
+    pos::Tuple{Int, Int}
+    status::Bool  # true is green and false is burning
+end</code></pre><p>The agent type <code>Tree</code> has three fields: <code>id</code> and <code>pos</code>, which have to be there for any agent, and a <code>status</code> field that we introduce for this specific model. The <code>status</code> field will hold <code>true</code> for a green tree and <code>false</code> for a burning one. All other model parameters go into the <code>AgentBasedModel</code></p><p>We then make a setup function that initializes the model</p><pre><code class="language-julia">function model_initiation(; f, d, p, griddims, seed = 111)
+    Random.seed!(seed)
+    space = Space(griddims, moore = true)
+    properties = Dict(:f =&gt; f, :d =&gt; d, :p =&gt; p)
+    forest = AgentBasedModel(Tree, space; properties=properties)
+
+    # create and add trees to each node with probability d,
+    # which determines the density of the forest
+    for node in nodes(forest)
+        if rand() ≤ forest.properties[:d]
+            add_agent!(node, forest, true)
+        end
+    end
+    return forest
+end
+
+forest = model_initiation(f=0.05, d=0.8, p=0.05, griddims=(20, 20), seed=2)</code></pre><pre><code class="language-none">AgentBasedModel with 327 agents of type Tree
+ space: GridSpace with 400 nodes and 1482 edges
+ scheduler: as_added
+ properties: Dict(:f =&gt; 0.05,:p =&gt; 0.05,:d =&gt; 0.8)</code></pre><h2 id="Defining-the-step!-1"><a class="docs-heading-anchor" href="#Defining-the-step!-1">Defining the step!</a><a class="docs-heading-anchor-permalink" href="#Defining-the-step!-1" title="Permalink"></a></h2><p>Because of the way the forest fire model is defined, we only need a stepping function for the model</p><pre><code class="language-julia">function forest_step!(forest)
+  for node in nodes(forest, by = :random)
+    nc = get_node_contents(node, forest)
+    # the cell is empty, maybe a tree grows here
+    if length(nc) == 0
+        rand() ≤ forest.properties[:p] &amp;&amp; add_agent!(node, forest, true)
+    else
+      tree = id2agent(nc[1], forest) # by definition only 1 agent per node
+      if tree.status == false  # if it is has been burning, remove it.
+        kill_agent!(tree, forest)
+      else
+        if rand() ≤ forest.properties[:f]  # the tree ignites spntaneously
+          tree.status = false
+        else  # if any neighbor is on fire, set this tree on fire too
+          for cell in node_neighbors(node, forest)
+            neighbors = get_node_contents(cell, forest)
+            length(neighbors) == 0 &amp;&amp; continue
+            if any(n -&gt; !forest.agents[n].status, neighbors)
+              tree.status = false
+              break
+            end
+          end
+        end
+      end
+    end
+  end
+end</code></pre><pre><code class="language-none">forest_step! (generic function with 1 method)</code></pre><p>as we discussed, there is no agent_step! function here, so we will just use <code>dummystep</code>.</p><h2 id="Running-the-model-1"><a class="docs-heading-anchor" href="#Running-the-model-1">Running the model</a><a class="docs-heading-anchor-permalink" href="#Running-the-model-1" title="Permalink"></a></h2><pre><code class="language-julia">step!(forest, dummystep, forest_step!)
+forest</code></pre><pre><code class="language-none">AgentBasedModel with 330 agents of type Tree
+ space: GridSpace with 400 nodes and 1482 edges
+ scheduler: as_added
+ properties: Dict(:f =&gt; 0.05,:p =&gt; 0.05,:d =&gt; 0.8)</code></pre><pre><code class="language-julia">step!(forest, dummystep, forest_step!, 10)
+forest</code></pre><pre><code class="language-none">AgentBasedModel with 94 agents of type Tree
+ space: GridSpace with 400 nodes and 1482 edges
+ scheduler: as_added
+ properties: Dict(:f =&gt; 0.05,:p =&gt; 0.05,:d =&gt; 0.8)</code></pre><p>Now we can do some data collection as well</p><pre><code class="language-julia">forest = model_initiation(f=0.05, d=0.8, p=0.01, griddims=(20, 20), seed=2)
+percentage(x) = count(x)/nv(forest)
+agent_properties = Dict(:status =&gt; [percentage])
+
+data = step!(forest, dummystep, forest_step!, 10, agent_properties)</code></pre><table class="data-frame"><thead><tr><th></th><th>percentage(status)</th><th>step</th></tr><tr><th></th><th>Float64</th><th>Int64</th></tr></thead><tbody><p>11 rows × 2 columns</p><tr><th>1</th><td>0.8175</td><td>0</td></tr><tr><th>2</th><td>0.4975</td><td>1</td></tr><tr><th>3</th><td>0.0375</td><td>2</td></tr><tr><th>4</th><td>0.015</td><td>3</td></tr><tr><th>5</th><td>0.02</td><td>4</td></tr><tr><th>6</th><td>0.0325</td><td>5</td></tr><tr><th>7</th><td>0.035</td><td>6</td></tr><tr><th>8</th><td>0.0425</td><td>7</td></tr><tr><th>9</th><td>0.055</td><td>8</td></tr><tr><th>10</th><td>0.0575</td><td>9</td></tr><tr><th>11</th><td>0.06</td><td>10</td></tr></tbody></table><p>Or we can run parallel/batch simulations</p><pre><code class="language-julia">agent_properties = [:status, :pos]
+data = step!(forest, dummystep, forest_step!, 10, agent_properties, when=when, replicates=10);</code></pre><p>Remember that it is possible to explore a <code>DataFrame</code> visually and interactively through <code>DataVoyager</code>, by doing</p><pre><code class="language-julia">using DataVoyager
+Voyager(data)</code></pre><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../wealth_distribution/">« Wealth distribution</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 1 December 2019 13:29">Sunday 1 December 2019</span>. Using Julia version 1.2.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

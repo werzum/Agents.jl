@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Wealth distribution · Agents.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">Agents.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Introduction</a></li><li><a class="tocitem" href="../tutorial/">Tutorial</a></li><li><a class="tocitem" href="../api/">API</a></li><li><span class="tocitem">Examples</span><ul><li class="is-active"><a class="tocitem" href>Wealth distribution</a><ul class="internal"><li><a class="tocitem" href="#Core-structures,-space-less-1"><span>Core structures, space-less</span></a></li><li><a class="tocitem" href="#Running-the-space-less-model-1"><span>Running the space-less model</span></a></li><li><a class="tocitem" href="#Core-structures,-with-space-1"><span>Core structures, with space</span></a></li><li><a class="tocitem" href="#Running-the-model-with-space-1"><span>Running the model with space</span></a></li></ul></li><li><a class="tocitem" href="../forest_fire/">Forest fire</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Wealth distribution</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Wealth distribution</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaDynamics/Agents.jl/blob/master/examples/wealth_distribution.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Wealth-distribution-model-1"><a class="docs-heading-anchor" href="#Wealth-distribution-model-1">Wealth distribution model</a><a class="docs-heading-anchor-permalink" href="#Wealth-distribution-model-1" title="Permalink"></a></h1><p>This model is a simple agent-based economy that is modelled according to the work of <a href="https://arxiv.org/abs/cond-mat/0211175">Dragulescu <em>et al.</em></a>. This work introduces statistical mechanics concepts to study wealth distributions. For this reason what we show here is also referred to as &quot;Boltzmann wealth distribution&quot; model.</p><p>This model has a version with and without space. The rules of the space-less game are quite simple:</p><ol><li>There is a pre-determined number of agents.</li><li>All agents start with one unit of wealth.</li><li>At every step an agent gives 1 unit of wealth (if they have it) to some other agent.</li></ol><p>Even though these are some very simple rules, they can still create the basic properties of wealth distributions, e.g. power-laws distributions.</p><h2 id="Core-structures,-space-less-1"><a class="docs-heading-anchor" href="#Core-structures,-space-less-1">Core structures, space-less</a><a class="docs-heading-anchor-permalink" href="#Core-structures,-space-less-1" title="Permalink"></a></h2><p>We start by defining the Agent type and initializing the model.</p><pre><code class="language-julia">using Agents
+mutable struct WealthAgent &lt;: AbstractAgent
+    id::Int
+    wealth::Int
+end</code></pre><p>Notice that this agent does not have a <code>pos</code> field. That is okay, because there is no space structure to this example. We can also make a very simple <a href="../tutorial/#Agents.AgentBasedModel"><code>AgentBasedModel</code></a> for our model.</p><pre><code class="language-julia">function wealth_model(;numagents = 100, initwealth = 1)
+    model = ABM(WealthAgent, scheduler=random_activation)
+    for i in 1:numagents
+        add_agent!(model, initwealth)
+    end
+    return model
+end
+
+model = wealth_model()</code></pre><pre><code class="language-none">AgentBasedModel with 100 agents of type WealthAgent
+ no space
+ scheduler: random_activation</code></pre><p>The next step is to define the agent step function</p><pre><code class="language-julia">function agent_step!(agent, model)
+    agent.wealth == 0 &amp;&amp; return # do nothing
+    ragent = random_agent(model)
+    agent.wealth -= 1
+    ragent.wealth += 1
+end</code></pre><pre><code class="language-none">agent_step! (generic function with 1 method)</code></pre><p>We use <code>random_agent</code> as a convenient way to just grab a random agent. (this may return the same agent as <code>agent</code>, but we don&#39;t care in the long run)</p><h2 id="Running-the-space-less-model-1"><a class="docs-heading-anchor" href="#Running-the-space-less-model-1">Running the space-less model</a><a class="docs-heading-anchor-permalink" href="#Running-the-space-less-model-1" title="Permalink"></a></h2><p>Let&#39;s do some data collection, running a large model for a lot of time</p><pre><code class="language-julia">N = 5
+M = 2000
+agent_properties = [:wealth]
+model = wealth_model(numagents=M)
+data = step!(model, agent_step!, N, agent_properties)
+data[end-20:end, :]</code></pre><table class="data-frame"><thead><tr><th></th><th>id</th><th>wealth</th><th>step</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Int64</th></tr></thead><tbody><p>21 rows × 3 columns</p><tr><th>1</th><td>1980</td><td>0</td><td>5</td></tr><tr><th>2</th><td>1981</td><td>3</td><td>5</td></tr><tr><th>3</th><td>1982</td><td>0</td><td>5</td></tr><tr><th>4</th><td>1983</td><td>1</td><td>5</td></tr><tr><th>5</th><td>1984</td><td>6</td><td>5</td></tr><tr><th>6</th><td>1985</td><td>2</td><td>5</td></tr><tr><th>7</th><td>1986</td><td>1</td><td>5</td></tr><tr><th>8</th><td>1987</td><td>2</td><td>5</td></tr><tr><th>9</th><td>1988</td><td>1</td><td>5</td></tr><tr><th>10</th><td>1989</td><td>0</td><td>5</td></tr><tr><th>11</th><td>1990</td><td>2</td><td>5</td></tr><tr><th>12</th><td>1991</td><td>1</td><td>5</td></tr><tr><th>13</th><td>1992</td><td>3</td><td>5</td></tr><tr><th>14</th><td>1993</td><td>0</td><td>5</td></tr><tr><th>15</th><td>1994</td><td>2</td><td>5</td></tr><tr><th>16</th><td>1995</td><td>1</td><td>5</td></tr><tr><th>17</th><td>1996</td><td>4</td><td>5</td></tr><tr><th>18</th><td>1997</td><td>1</td><td>5</td></tr><tr><th>19</th><td>1998</td><td>0</td><td>5</td></tr><tr><th>20</th><td>1999</td><td>2</td><td>5</td></tr><tr><th>21</th><td>2000</td><td>1</td><td>5</td></tr></tbody></table><p>What we mostly care about is the distribution of wealth, which we can obtain for example by doing the following query:</p><pre><code class="language-julia">wealths = filter(x -&gt; x.step == N, data)[!, :wealth]</code></pre><pre><code class="language-none">2000-element Array{Int64,1}:
+ 1
+ 1
+ 0
+ 0
+ 1
+ 1
+ 0
+ 3
+ 1
+ 1
+ ⋮
+ 3
+ 0
+ 2
+ 1
+ 4
+ 1
+ 0
+ 2
+ 1</code></pre><p>and then we can make a histogram of the result. With a simple visualization we immediatelly see the power-law distribution:</p><pre><code class="language-julia">using UnicodePlots
+UnicodePlots.histogram(wealths)</code></pre><pre><code class="language-none">                ┌                                        ┐ 
+   [ 0.0,  1.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 894   
+   [ 1.0,  2.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 580               
+   [ 2.0,  3.0) ┤▇▇▇▇▇▇▇▇▇▇▇▇ 299                          
+   [ 3.0,  4.0) ┤▇▇▇▇▇▇ 147                                
+   [ 4.0,  5.0) ┤▇▇ 39                                     
+   [ 5.0,  6.0) ┤▇ 27                                      
+   [ 6.0,  7.0) ┤ 11                                       
+   [ 7.0,  8.0) ┤ 1                                        
+   [ 8.0,  9.0) ┤ 1                                        
+   [ 9.0, 10.0) ┤ 1                                        
+                └                                        ┘ 
+                                Frequency</code></pre><h2 id="Core-structures,-with-space-1"><a class="docs-heading-anchor" href="#Core-structures,-with-space-1">Core structures, with space</a><a class="docs-heading-anchor-permalink" href="#Core-structures,-with-space-1" title="Permalink"></a></h2><p>We now expand this model to (in this case) a 2D grid. The rules are the same but agents exchange wealth only with their neighbors. We therefore have to add a <code>pos</code> field as the second field of the agents:</p><pre><code class="language-julia">mutable struct WealthInSpace &lt;: AbstractAgent
+    id::Int
+    pos::NTuple{2, Int}
+    wealth::Int
+end
+
+function wealth_model_2D(;dims = (25,25), wealth = 1, M = 1000)
+  space = Space(dims, periodic = true)
+  model = ABM(WealthInSpace, space; scheduler = random_activation)
+  for i in 1:M # add agents in random nodes
+      add_agent!(model, wealth)
+  end
+  return model
+end
+
+model2D = wealth_model_2D()</code></pre><pre><code class="language-none">AgentBasedModel with 1000 agents of type WealthInSpace
+ space: GridSpace with 625 nodes and 1250 edges
+ scheduler: random_activation</code></pre><p>The agent actions are a just a bit more complicated in this example. Now the agents can only give wealth to agents that exist on the same or neighboring nodes (their &quot;neighbhors&quot;).</p><pre><code class="language-julia">function agent_step_2d!(agent, model)
+    agent.wealth == 0 &amp;&amp; return # do nothing
+    agent_node = coord2vertex(agent.pos, model)
+    neighboring_nodes = node_neighbors(agent_node, model)
+    push!(neighboring_nodes, agent_node) # also consider current node
+    rnode = rand(neighboring_nodes) # the node that we will exchange with
+    available_agents = get_node_contents(rnode, model)
+    if length(available_agents) &gt; 0
+        random_neighbor_agent = id2agent(rand(available_agents), model)
+        agent.wealth -= 1
+        random_neighbor_agent.wealth += 1
+    end
+end</code></pre><pre><code class="language-none">agent_step_2d! (generic function with 1 method)</code></pre><h2 id="Running-the-model-with-space-1"><a class="docs-heading-anchor" href="#Running-the-model-with-space-1">Running the model with space</a><a class="docs-heading-anchor-permalink" href="#Running-the-model-with-space-1" title="Permalink"></a></h2><pre><code class="language-julia">using Random
+Random.seed!(5)
+init_wealth = 4
+model = wealth_model_2D(;wealth = init_wealth)
+agent_properties = [:wealth]
+data = step!(model, agent_step!, 10, agent_properties, when = [1, 5, 10], step0=false)
+data[end-20:end, :]</code></pre><table class="data-frame"><thead><tr><th></th><th>id</th><th>wealth</th><th>step</th></tr><tr><th></th><th>Int64</th><th>Int64</th><th>Int64</th></tr></thead><tbody><p>21 rows × 3 columns</p><tr><th>1</th><td>980</td><td>5</td><td>10</td></tr><tr><th>2</th><td>981</td><td>1</td><td>10</td></tr><tr><th>3</th><td>982</td><td>7</td><td>10</td></tr><tr><th>4</th><td>983</td><td>4</td><td>10</td></tr><tr><th>5</th><td>984</td><td>2</td><td>10</td></tr><tr><th>6</th><td>985</td><td>2</td><td>10</td></tr><tr><th>7</th><td>986</td><td>7</td><td>10</td></tr><tr><th>8</th><td>987</td><td>2</td><td>10</td></tr><tr><th>9</th><td>988</td><td>2</td><td>10</td></tr><tr><th>10</th><td>989</td><td>3</td><td>10</td></tr><tr><th>11</th><td>990</td><td>7</td><td>10</td></tr><tr><th>12</th><td>991</td><td>2</td><td>10</td></tr><tr><th>13</th><td>992</td><td>6</td><td>10</td></tr><tr><th>14</th><td>993</td><td>3</td><td>10</td></tr><tr><th>15</th><td>994</td><td>2</td><td>10</td></tr><tr><th>16</th><td>995</td><td>8</td><td>10</td></tr><tr><th>17</th><td>996</td><td>7</td><td>10</td></tr><tr><th>18</th><td>997</td><td>3</td><td>10</td></tr><tr><th>19</th><td>998</td><td>9</td><td>10</td></tr><tr><th>20</th><td>999</td><td>6</td><td>10</td></tr><tr><th>21</th><td>1000</td><td>0</td><td>10</td></tr></tbody></table><p>Okay, now we want to get the 2D spatial wealth distribution of the model. That is actually straightforward:</p><pre><code class="language-julia">function wealth_distr(data, model, n)
+    W = zeros(Int, size(model.space))
+    for row in eachrow(filter(r -&gt; r.step == n, data)) # iterate over rows at a specific step
+        W[id2agent(row.id, model).pos...] += row.wealth
+    end
+    return W
+end
+
+W1 = wealth_distr(data, model2D, 1)</code></pre><pre><code class="language-none">25×25 Array{Int64,2}:
+  7  11  13   3  13   6   7   0   0  …   4   4   3   7   4  10   8  11   0
+  7  10   8   0   7   8   0   8   8      5   4   6  14   0  19   0   7   0
+  8   7   3   0   3   3   0   8  13      5   0  15  16   8   0   8   7   3
+ 16   0   9  14   8  15   7   4  10     19   4   8   0   6   4   7   9  10
+ 13   6   3   6   0  10   0   0   9     14   4   4   8   9  11   3  10   5
+  0   0   3   0  12   3   9   5   7  …  14  17  33   4  11   3   4   7  19
+  3  14   6  12  10   3   9   3   3      4   8   9  12   0   3  11   5   7
+ 21  15   6   0   7   5   0   0   3      3  11  11   0   0  11  10   3   4
+ 17  13   4  13   3  11  13   3   3      0   0   4   6   6   7   0   4   0
+ 10   9   9   0   9   4   0   4  17      6   7   5   8  13   0   0   5  15
+  ⋮                   ⋮              ⋱                   ⋮                
+  9  10   3   4   4   0  12   3  17     14   3   7   0  11   7   0  11   0
+  0   0   4   6  15   0   3   9   0      3  10   4  20   0   4   3   5   4
+  3   3   0  16   6   4  17   3   9      4  14   7  16   9  12   0  16   3
+ 12   5   9  14   7   8   7   6  18      6   4  12   0   0   6   7  23   7
+ 11   7  13   5   4   4  10   5   0  …  16  27  11  14   3   0  13   4  12
+  5   9   3   5  13   8   8  11   5      4   3   8   8   0   3   0  12   6
+ 17   0   8  19   7  10   0   8   8      4  17   3   4   8   0  14   5   5
+  3   3   4   8   7   3   8   7  11      8   3   3   0   7   0   3   7   8
+  0   9   9   3   3   8   8  12  15     16   4  21   3  17   0   0   4   9</code></pre><pre><code class="language-julia">W5 = wealth_distr(data, model2D, 5)</code></pre><pre><code class="language-none">25×25 Array{Int64,2}:
+  8   8   7   5   9   7   5   0   0  …   7   3   3   6   4  10  10  10   0
+  8   5   7   0   8   4   0   8   8      4   2   6  15   0  19   0   9   0
+  4   7   3   0   2   2   0   6  16      5   0  16  19  11   0   7   3   2
+ 15   0   9  23   8  16   4   7   9     18   5   8   0   7   2   9   9  11
+ 12   6   5   8   0   9   0   0   8     10   2   3   8  17  17   2  11   4
+  0   0   2   0   5   0  12   5   7  …  13  21  32   7   9   6   2   7  22
+  1  12   5  15  12   3  11   0   4      5  11   5  14   0   6  14   5  10
+ 22  13   6   0   4   6   0   0   2      0   8  11   0   0  12  14   4   8
+ 20  10   5  10   6  11  11   3   2      0   0   2   4   5   5   0   4   0
+ 13   4   7   0   7   2   0   6  19      2   7   7   9  14   0   0   2  15
+  ⋮                   ⋮              ⋱                   ⋮                
+ 11   9   0   3   1   0   7   2  12     15   5   6   0   9   6   0  10   0
+  0   0   6   8  14   0   3  15   0      7  11   3  16   0   4   6   3   2
+  6   3   0  13   2   1  23   2  10      5  15   4  14  10  12   0  12   3
+  7   6  10  18   1   5   6   7  15      4   5  11   0   0   8  11  29   5
+ 10   5  11   5   5   1   6   2   0  …  15  25  13  13   2   0  12   3   9
+  4   7   1   4  14   9  11  13   6      2   5   8   9   0   4   0  13   5
+ 13   0   3  22   9  11   0   7   8      5   9   6   4  11   0  14   6  10
+  2   2   7   8   4   4   7   7  17      8   2   3   0   7   0   2   7   8
+  0  13   5   0   3   9   4  14  20     15   2  29   3  20   0   0   7   6</code></pre><pre><code class="language-julia">W10 = wealth_distr(data, model2D, 10)</code></pre><pre><code class="language-none">25×25 Array{Int64,2}:
+ 12   7   8   5   4   6   3   0   0  …   9   2   2   6   1  10   6  13   0
+  9  12   9   0   6   4   0  11   6      4   0   6  18   0  22   0   7   0
+  4   5   4   0   1   0   0   9  19      5   0  15  18   9   0   4   1   2
+ 17   0   4  26  16  17   7   6  10     16   4   5   0   4   3   7   4  11
+ 11   6   7   4   0  12   0   0   0     10   0   2   8  18  12   0   6   1
+  0   0   3   0   4   0  16   2   6  …  22  20  34  14  17   6   2   4  22
+  1  13   8  11  13   5   9   4   4      3  14   9  11   0   4  15   5   8
+ 23  12   6   0   8   4   0   0   0      4   8   9   0   0  12  11   5   9
+ 17  14  11   9   7   6  11   1   7      0   0   5   5   7   7   0  10   0
+ 16   0   8   0   9   0   0   5  14      4   6   3   9  14   0   0   2  20
+  ⋮                   ⋮              ⋱                   ⋮                
+ 12  14   1   4   0   0   7   2  14     11   6   3   0  10   7   0   6   0
+  0   0   7   5  15   0   2  18   0      5  10   0  11   0   2   5   1   2
+  6   3   0  15   1   1  18   3   5      0  21   3  10   9  11   0   9   0
+ 13   6  12  20   2   7  16   8  13      7   3  13   0   0   5  11  29   4
+  5   5   8   4   8   0   1   1   0  …  19  24  13  10   2   0  15   2   8
+  4   3   5   3  13   4   9  16   3      1   7   8   9   0   5   0  16   5
+ 12   0   7  26   5  12   0   7   5      5  14   4   2  13   0  20   6  13
+  0   1   4  12   5   5   4   4  16      8   3   3   0  10   0   0   9   7
+  0  12   6   1   1   8   2  12  13     12   7  29   5  14   0   0   3   4</code></pre><p>What we see is that wealth gets more and more localized.</p><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../api/">« API</a><a class="docs-footer-nextpage" href="../forest_fire/">Forest fire »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 1 December 2019 13:29">Sunday 1 December 2019</span>. Using Julia version 1.2.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
