@@ -56,7 +56,7 @@ function move!(agent, model)
   newx &gt; 1.0 &amp;&amp; (newx = newx - 1.0)
   newy &lt; 0.0 &amp;&amp; (newy = newy + 1.0)
   newy &gt; 1.0 &amp;&amp; (newy = newy - 1.0)
-  agent.pos = Tuple([newx, newy])
+  agent.pos = (newx, newy)
 end
 
 function transmit!(agent, model)
@@ -77,10 +77,7 @@ function transmit!(agent, model)
       contact.status = :I
     end
   end</code></pre><p>change direction</p><pre><code class="language-">  firstcontact = id2agent(r[1,:id], model)
-  dir1 = deepcopy(agent.dir)
-  dir2 = deepcopy(firstcontact.dir)
-  agent.dir = dir2
-  firstcontact.dir = dir1
+  agent.dir, firstcontact.dir = firstcontact.dir, agent.dir
 end
 
 update!(agent, model) = agent.status == :I &amp;&amp; (agent.days_infected += 1)
@@ -115,4 +112,4 @@ anim = @animate for i ∈ 1:100
   step!(model, agent_step!, 1)
 end
 gif(anim, &quot;social_distancing.gif&quot;, fps = 8);
-nothing #hide</code></pre><p><img src="social_distancing.gif" alt/></p></article></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 15 March 2020 16:00">Sunday 15 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+nothing #hide</code></pre><p><img src="social_distancing.gif" alt/></p></article></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 15 March 2020 20:00">Sunday 15 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
