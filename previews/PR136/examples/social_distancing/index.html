@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>- · Agents.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&amp;display=swap" rel="stylesheet" type="text/css"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="Agents.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">Agents.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Introduction</a></li><li><a class="tocitem" href="../../tutorial/">Tutorial</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../schelling/">Schelling&#39;s segregation model</a></li><li><a class="tocitem" href="../sir/">SIR model for the spread of COVID-19</a></li><li><a class="tocitem" href="../wealth_distribution/">Wealth distribution</a></li><li><a class="tocitem" href="../forest_fire/">Forest fire</a></li><li><a class="tocitem" href="../game_of_life_2D_CA/">Game of life</a></li><li><a class="tocitem" href="../rule22_1D_CA/">Rule 22</a></li><li><a class="tocitem" href="../wright-fisher/">Wright-Fisher model of evolution</a></li><li><a class="tocitem" href="../HK/">Hegselmann-Krause opinion dynamics</a></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li><li><a class="tocitem" href="../../mesa/">Comparison against Mesa (Python)</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>-</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>-</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaDynamics/Agents.jl/blob/master/examples/social_distancing.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><pre><code class="language-">using Agents, Random, DataFrames, SQLite, Plots
+using DrWatson: @dict
+
+mutable struct Agent &lt;: AbstractAgent
+  id::Int
+  pos::Tuple{Float64, Float64}
+  dir::Float64
+  days_infected::Int  # number of days since is infected
+  status::Symbol  # 1: S, 2: I, 3:R
+end
+
+function model_initiation(;infection_period = 30, moveprob = 0.4,
+  reinfection_probability = 0.05,
+  detection_time = 14, death_rate = 0.02, β_und=0.6, β_det=0.05, N=100,
+  movement=0.005, transmission_radius=0.0001, initial_infected=5, seed=0)
+  Random.seed!(seed)</code></pre><p>movedist = Normal(0, movement) Create a database of agent positions</p><pre><code class="language-">  db = SQLite.DB()
+  stmt = &quot;CREATE TABLE tab (
+    x REAL,
+    y REAL,
+    id INTEGER,
+    PRIMARY KEY (x, y))&quot;
+  DBInterface.execute(db, stmt)
+
+  properties = @dict(β_und, β_det, infection_period, reinfection_probability,
+  detection_time, death_rate, movement, transmission_radius, moveprob, db)
+  model = ABM(Agent; properties=properties)
+
+  # Add initial individuals
+  insertstmt = &quot;INSERT INTO tab (x, y, id) VALUES (?, ?, ?)&quot;
+  q = DBInterface.prepare(db, insertstmt)
+  for ind in 1:N
+    pos = Tuple(rand(2))
+    add_agent!(model, pos, rand(0:0.01:2π), 0, :S) # Susceptible
+    DBInterface.execute(q, [pos[1], pos[2], ind])
+  end
+  DBInterface.execute(db, &quot;CREATE INDEX pos ON tab (x,y)&quot;)</code></pre><p>Infect one individual</p><pre><code class="language-">  for ind in rand(1:N, initial_infected)
+    model.agents[ind].status = :I
+  end
+
+  return model
+end
+
+function agent_step!(agent, model)
+  move!(agent, model)
+  transmit!(agent, model)
+  update!(agent, model)
+  recover_or_die!(agent, model)
+end
+
+function move!(agent, model)
+  rand() &gt; model.properties[:moveprob] &amp;&amp; return
+  newx = agent.pos[1] + (model.properties[:movement] * cos(agent.dir))
+  newy = agent.pos[2] + (model.properties[:movement] * sin(agent.dir))
+  newx &lt; 0.0 &amp;&amp; (newx = newx + 1.0)
+  newx &gt; 1.0 &amp;&amp; (newx = newx - 1.0)
+  newy &lt; 0.0 &amp;&amp; (newy = newy + 1.0)
+  newy &gt; 1.0 &amp;&amp; (newy = newy - 1.0)
+  agent.pos = Tuple([newx, newy])
+end
+
+function transmit!(agent, model)
+  agent.status == :S &amp;&amp; return
+  prop = model.properties
+  db = model.properties[:db]
+  xleft = agent.pos[1] - prop[:transmission_radius]
+  xright = agent.pos[1] + prop[:transmission_radius]
+  yleft = agent.pos[2] - prop[:transmission_radius]
+  yright = agent.pos[2] + prop[:transmission_radius]
+  searchstmt = &quot;SELECT id FROM tab WHERE x BETWEEN $xleft AND $xright AND y BETWEEN $yleft AND $yright AND id != $(agent.id)&quot;
+  r = DBInterface.execute(db, searchstmt) |&gt; DataFrame
+  size(r,1) == 0 &amp;&amp; return
+
+  for contactID in r[!, :id]
+    contact = id2agent(contactID, model)
+    if contact.status == :S || (contact.status == :R &amp;&amp; rand() ≤ prop[:reinfection_probability])
+      contact.status = :I
+    end
+  end</code></pre><p>change direction</p><pre><code class="language-">  firstcontact = id2agent(r[1,:id], model)
+  dir1 = deepcopy(agent.dir)
+  dir2 = deepcopy(firstcontact.dir)
+  agent.dir = dir2
+  firstcontact.dir = dir1
+end
+
+update!(agent, model) = agent.status == :I &amp;&amp; (agent.days_infected += 1)
+
+function recover_or_die!(agent, model)
+  if agent.days_infected ≥ model.properties[:infection_period]
+    if rand() ≤ model.properties[:death_rate]
+      kill_agent!(agent, model)
+      delstmt = &quot;DELETE FROM tab WHERE id = $(agent.id)&quot;
+      DBInterface.execute(model.properties[:db], delstmt)
+    else
+      agent.status = :R
+      agent.days_infected = 0
+    end
+  end
+end
+
+model = model_initiation(moveprob=0.4, transmission_radius=0.02, N=200, death_rate = 0.01)
+
+infected(x) = count(i == :I for i in x)
+recovered(x) = count(i == :R for i in x)
+data_to_collect = Dict(:status =&gt; [infected, recovered, length])
+data = step!(model, agent_step!, 500, data_to_collect)
+data[1:10, :]</code></pre><h2 id="Example-animation-1"><a class="docs-heading-anchor" href="#Example-animation-1">Example animation</a><a class="docs-heading-anchor-permalink" href="#Example-animation-1" title="Permalink"></a></h2><pre><code class="language-">model = model_initiation(moveprob=0.9, movement=0.005, transmission_radius=0.02, N=100, death_rate = 0.01)
+colordict = Dict(:I=&gt;&quot;red&quot;, :S=&gt;&quot;black&quot;, :R=&gt;&quot;green&quot;)
+anim = @animate for i ∈ 1:100
+  xs = [a.pos[1] for a in values(model.agents)];
+  ys = [a.pos[2] for a in values(model.agents)];
+  colors = [colordict[a.status] for a in values(model.agents)];
+  p1 = scatter(xs, ys, color=colors, label=&quot;&quot;, xlims=[0,1], ylims=[0, 1], xgrid=false, ygrid=false,xaxis=false, yaxis=false)
+  title!(p1, &quot;Day $(i)&quot;)
+  step!(model, agent_step!, 1)
+end
+gif(anim, &quot;social_distancing.gif&quot;, fps = 8);
+nothing #hide</code></pre><p><img src="social_distancing.gif" alt/></p></article></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 15 March 2020 15:59">Sunday 15 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
