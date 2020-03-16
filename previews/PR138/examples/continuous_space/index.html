@@ -2,9 +2,8 @@
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>A simple continuous space model · Agents.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&amp;display=swap" rel="stylesheet" type="text/css"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="Agents.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">Agents.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Introduction</a></li><li><a class="tocitem" href="../../tutorial/">Tutorial</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../schelling/">Schelling&#39;s segregation model</a></li><li><a class="tocitem" href="../sir/">SIR model for the spread of COVID-19</a></li><li><a class="tocitem" href="../wealth_distribution/">Wealth distribution</a></li><li><a class="tocitem" href="../forest_fire/">Forest fire</a></li><li><a class="tocitem" href="../game_of_life_2D_CA/">Game of life</a></li><li><a class="tocitem" href="../rule22_1D_CA/">Rule 22</a></li><li><a class="tocitem" href="../wright-fisher/">Wright-Fisher model of evolution</a></li><li><a class="tocitem" href="../HK/">Hegselmann-Krause opinion dynamics</a></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li><li><a class="tocitem" href="../../mesa/">Comparison against Mesa (Python)</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>A simple continuous space model</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>A simple continuous space model</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaDynamics/Agents.jl/blob/master/examples/continuous_space.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="A-simple-continuous-space-model-1"><a class="docs-heading-anchor" href="#A-simple-continuous-space-model-1">A simple continuous space model</a><a class="docs-heading-anchor-permalink" href="#A-simple-continuous-space-model-1" title="Permalink"></a></h1><p>This is a proof of concept for continuous space. The final api can use ideas in this example.</p><pre><code class="language-">using Agents, Random, DataFrames, SQLite, Plots
 using DrWatson: @dict
 import Agents: Space
-import Base.show</code></pre><p>TODO</p><pre><code class="language-">function Base.show(io::IO, abm::ContinuousSpace)</code></pre><p>s = &quot;nameof(typeof(abm)) with nv(abm) nodes and ne(abm) edges&quot;</p><pre><code class="language-">    s = &quot;A ContinuousSpace&quot;
-    print(io, s)
-end
+import Base.show
+import Agents: add_agent!
 
 mutable struct Agent &lt;: AbstractAgent
   id::Int
@@ -15,8 +14,9 @@ end
 struct ContinuousSpace &lt;: AbstractSpace
   db::SQLite.DB
   movesize
-  space_resolution
+  resolution
   interaction_radius
+  insertq
 end
 
 &quot;Initializes a database with an empty table.&quot;
@@ -25,25 +25,47 @@ function ContinuousSpace(;movesize=0.005, resolution=3, interaction_radius=10.0^
   stmt = &quot;CREATE TABLE tab (
     x REAL,
     y REAL,
-    id INTEGER,
-    PRIMARY KEY (x, y))&quot;
+    id INTEGER PRIMARY KEY)&quot;
   DBInterface.execute(db, stmt)
-
-  ContinuousSpace(db, movesize, resolution, interaction_radius)
+  insertstmt = &quot;INSERT INTO tab (x, y, id) VALUES (?, ?, ?)&quot;
+  q = DBInterface.prepare(db, insertstmt)
+  ContinuousSpace(db, movesize, resolution, interaction_radius, q)
 end
 
 Space(;movesize, resolution, interaction_radius=10.0^(-resolution)) = ContinuousSpace(movesize=movesize,resolution=resolution,interaction_radius=interaction_radius)
 
-function fill_db!(model::ABM)
-  agents = values(model.agents)
-  db = space.db
-  insertstmt = &quot;INSERT INTO tab (x, y, id) VALUES (?, ?, ?)&quot;
-  q = DBInterface.prepare(db, insertstmt)
+&quot;Add many agents to the database&quot;
+function fill_db!(agents, model::ABM{A, S}) where {A, S&lt;:ContinuousSpace}
+  db = model.space.db
   for agent in agents
     p1, p2 = round.(agent.pos, digits=model.space.resolution)
-    DBInterface.execute(q, [p1, p2, agent.id])
+    DBInterface.execute(model.space.insertq, [p1, p2, agent.id])
   end
-  DBInterface.execute(db, &quot;CREATE INDEX pos ON tab (x,y,id)&quot;)
+end
+
+&quot;&quot;&quot;
+Indexing the database can drastically improve retrieving data, but adding new
+data can become slower because after each addition, index needs to be reworked.
+
+Lack of index won&#39;t be noticed for small databases. Only use it when you have
+many agents and not many additions of agents.
+&quot;&quot;&quot;
+function index_db!(model)
+  DBInterface.execute(model.space.db, &quot;CREATE INDEX pos ON tab (x,y,id)&quot;)
+end</code></pre><p>TODO</p><pre><code class="language-">function Base.show(io::IO, abm::ContinuousSpace)</code></pre><p>s = &quot;nameof(typeof(abm)) with nv(abm) nodes and ne(abm) edges&quot;</p><pre><code class="language-">    s = &quot;A ContinuousSpace&quot;
+    print(io, s)
+end
+
+function add_agent!(model::ABM{A, S}, properties...) where {A, S&lt;:ContinuousSpace}
+  db = model.space.db
+
+  idq = DBInterface.execute(db, &quot;select max(id) as maxid from tab&quot;) |&gt; DataFrame
+  id = ismissing(idq[1,1]) ? 1 : idq[1,1]+1
+  agent = A(id, properties...)
+  p1, p2 = round.(agent.pos, digits=model.space.resolution)
+  DBInterface.execute(model.space.insertq, [p1, p2, id])
+  model.agents[id] = agent
+  return agent
 end
 
 function model_initiation(;N=100, movesize=0.005, space_resolution=3, seed=0)
@@ -54,8 +76,10 @@ function model_initiation(;N=100, movesize=0.005, space_resolution=3, seed=0)
   # Add initial individuals
   for ind in 1:N
     pos = Tuple(round.(rand(2), digits=space_resolution))
-    add_agent!(model, pos, rand(0:0.01:2π)) # TODO fix add_agent!
-  end</code></pre><p>Fill space.db with agents</p><pre><code class="language-">  fill_db!(model)
+    add_agent!(model, pos, rand(0:0.01:2π))
+  end
+
+  index_db!(model)
 
   return model
 end
@@ -98,4 +122,4 @@ anim = @animate for i ∈ 1:100
   step!(model, agent_step!, 1)
 end
 gif(anim, &quot;movement.gif&quot;, fps = 8);
-nothing #hide</code></pre><p><img src="social_distancing.gif" alt/></p></article></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 16 March 2020 14:46">Monday 16 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+nothing #hide</code></pre><p><img src="social_distancing.gif" alt/></p></article></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 16 March 2020 15:19">Monday 16 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
