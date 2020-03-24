@@ -1,8 +1,62 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>A model of social distancing for spread of disease. · Agents.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&amp;display=swap" rel="stylesheet" type="text/css"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="Agents.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">Agents.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Introduction</a></li><li><a class="tocitem" href="../../tutorial/">Tutorial</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../schelling/">Schelling&#39;s segregation model</a></li><li><a class="tocitem" href="../sir/">SIR model for the spread of COVID-19</a></li><li><a class="tocitem" href="../wealth_distribution/">Wealth distribution</a></li><li><a class="tocitem" href="../forest_fire/">Forest fire</a></li><li><a class="tocitem" href="../game_of_life_2D_CA/">Game of life</a></li><li><a class="tocitem" href="../rule22_1D_CA/">Rule 22</a></li><li><a class="tocitem" href="../wright-fisher/">Wright-Fisher model of evolution</a></li><li><a class="tocitem" href="../HK/">Hegselmann-Krause opinion dynamics</a></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li><li><a class="tocitem" href="../../mesa/">Comparison against Mesa (Python)</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>A model of social distancing for spread of disease.</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>A model of social distancing for spread of disease.</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaDynamics/Agents.jl/blob/master/examples/social_distancing.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="A-model-of-social-distancing-for-spread-of-disease.-1"><a class="docs-heading-anchor" href="#A-model-of-social-distancing-for-spread-of-disease.-1">A model of social distancing for spread of disease.</a><a class="docs-heading-anchor-permalink" href="#A-model-of-social-distancing-for-spread-of-disease.-1" title="Permalink"></a></h1><p>This is a model similar to our SIR model of disease spread. But instead of having different cities, we let agents move in one continuous space and transfer the disease if they come into contact with one another. # This model is partly inspired by <a href="https://www.washingtonpost.com/graphics/2020/world/corona-simulator/">this article</a>.</p><p>For a detailed description of the basics of the model, see the SIR example.</p><pre><code class="language-">using Agents, Random, Plots
-using DrWatson: @dict
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>A model of social distancing for spread of disease. · Agents.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&amp;display=swap" rel="stylesheet" type="text/css"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="Agents.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">Agents.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Introduction</a></li><li><a class="tocitem" href="../../tutorial/">Tutorial</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../schelling/">Schelling&#39;s segregation model</a></li><li><a class="tocitem" href="../sir/">SIR model for the spread of COVID-19</a></li><li><a class="tocitem" href="../wealth_distribution/">Wealth distribution</a></li><li><a class="tocitem" href="../forest_fire/">Forest fire</a></li><li><a class="tocitem" href="../game_of_life_2D_CA/">Game of life</a></li><li><a class="tocitem" href="../rule22_1D_CA/">Rule 22</a></li><li><a class="tocitem" href="../wright-fisher/">Wright-Fisher model of evolution</a></li><li><a class="tocitem" href="../HK/">Hegselmann-Krause opinion dynamics</a></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li><li><a class="tocitem" href="../../mesa/">Comparison against Mesa (Python)</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>A model of social distancing for spread of disease.</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>A model of social distancing for spread of disease.</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaDynamics/Agents.jl/blob/master/examples/social_distancing.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="A-model-of-social-distancing-for-spread-of-disease.-1"><a class="docs-heading-anchor" href="#A-model-of-social-distancing-for-spread-of-disease.-1">A model of social distancing for spread of disease.</a><a class="docs-heading-anchor-permalink" href="#A-model-of-social-distancing-for-spread-of-disease.-1" title="Permalink"></a></h1><p>This is a model similar to our SIR model of disease spread. But instead of having different cities, we let agents move in one continuous space and transfer the disease if they come into contact with one another. # This model is partly inspired by <a href="https://www.washingtonpost.com/graphics/2020/world/corona-simulator/">this article</a>.</p><p>For a detailed description of the basics of the model, see the SIR example.</p><pre><code class="language-julia">using Agents, Random, Plots
+using DrWatson: @dict</code></pre><p>Let us first create a simple model were balls move around in a continuous space:</p><pre><code class="language-">mutable struct Agent{D, F&lt;:AbstractFloat} &lt;: AbstractAgent
+  id::Int
+  pos::NTuple{D, F}
+  vel::NTuple{D, F}
+  diameter::F
+  moved::Bool
+end
 
-mutable struct Agent{D, F&lt;:AbstractFloat} &lt;: AbstractAgent
+function model_initiation(;N=100, speed=0.005, diameter=0.01, seed=0)
+  Random.seed!(seed)
+  space = ContinuousSpace(2; periodic = true, extend = (1, 1))
+  model = ABM(Agent, space);
+
+  # Add initial individuals
+  for ind in 1:N
+    pos = Tuple(rand(2))
+    vel = sincos(2π*rand()) .* speed
+    add_agent!(pos, model, vel, diameter, false)
+  end
+
+  Agents.index!(model)
+  return model
+end
+
+function agent_step!(agent, model)
+  move_agent!(agent, model)
+  collide!(agent, model)
+end
+
+function collide!(agent, model)
+  agent.moved &amp;&amp; return
+  r = space_neighbors(agent.pos, model, agent.diameter)
+  length(r) == 0 &amp;&amp; return</code></pre><p>change direction</p><pre><code class="language-">  for contactid in 1:length(r)
+    contact = id2agent(r[contactid], model)
+    if contact.moved == false
+      agent.vel, contact.vel = (agent.vel[1], contact.vel[2]), (contact.vel[1], agent.vel[2])
+      contact.moved = true
+    end
+  end
+  agent.moved=true
+end
+
+function model_step!(model)
+  for agent in values(model.agents)
+    agent.moved = false
+  end
+end</code></pre><h2 id="Example-animation-1"><a class="docs-heading-anchor" href="#Example-animation-1">Example animation</a><a class="docs-heading-anchor-permalink" href="#Example-animation-1" title="Permalink"></a></h2><pre><code class="language-">model = model_initiation(N=200, speed=0.005, diameter=0.01);
+colors = rand(200)
+@time anim = @animate for i ∈ 1:100
+  xs = [a.pos[1] for a in values(model.agents)];
+  ys = [a.pos[2] for a in values(model.agents)];
+  p1 = scatter(xs, ys, label=&quot;&quot;, marker_z=colors, xlims=[0,1], ylims=[0, 1], xgrid=false, ygrid=false,xaxis=false, yaxis=false)
+  title!(p1, &quot;Day $(i)&quot;)
+  step!(model, agent_step!, model_step!, 1)
+end
+gif(anim, &quot;movement.gif&quot;, fps = 8);
+nothing #hide</code></pre><p><img src="social_distancing.gif" alt/></p><p>We can now add move functionality to these agents. They can be infected with a disease and transfer the disease to other agents around them.</p><pre><code class="language-">mutable struct Agent2{D, F&lt;:AbstractFloat} &lt;: AbstractAgent
   id::Int
   pos::NTuple{D, F}
   vel::NTuple{D, F}
@@ -20,7 +74,7 @@ function model_initiation(;infection_period = 30, moveprob = 0.4,
   properties = @dict(β_und, β_det, infection_period, reinfection_probability,
   detection_time, death_rate, transmission_radius, moveprob)
   space = ContinuousSpace(2; periodic = true, extend = (1, 1))
-  model = ABM(Agent, space, properties=properties)
+  model = ABM(Agent2, space, properties=properties)
 
   # Add initial individuals
   for ind in 1:N
@@ -84,10 +138,7 @@ function model_step!(model)
   for agent in values(model.agents)
     agent.moved = false
   end
-end
-
-model = model_initiation(moveprob = 0.9)
-step!(model, agent_step!, model_step!, 500)</code></pre><h2 id="Example-animation-1"><a class="docs-heading-anchor" href="#Example-animation-1">Example animation</a><a class="docs-heading-anchor-permalink" href="#Example-animation-1" title="Permalink"></a></h2><p>Lets observe disease spread with different movement probabilities of agents</p><pre><code class="language-">model = model_initiation(N=400,moveprob = 0.9, initial_infected=30);
+end</code></pre><p>Lets observe disease spread with different amounts of agent movements. First, agents move with a probability of 0.9.</p><pre><code class="language-">model = model_initiation(N=400,moveprob = 0.9, initial_infected=30);
 colordict = Dict(:I=&gt;&quot;red&quot;, :S=&gt;&quot;black&quot;, :R=&gt;&quot;green&quot;)
 anim = @animate for i ∈ 1:200
   xs = [a.pos[1] for a in values(model.agents)];
@@ -98,7 +149,7 @@ anim = @animate for i ∈ 1:200
   step!(model, agent_step!, 1)
 end
 gif(anim, &quot;social_distancing0.9.gif&quot;, fps = 8);
-nothing #hide</code></pre><p><img src="social_distancing0.9.gif" alt/></p><pre><code class="language-">model = model_initiation(N=400,moveprob = 0.5, initial_infected=30);
+nothing #hide</code></pre><p><img src="social_distancing0.9.gif" alt/></p><p>And now reduce the movement probability to 0.5.</p><pre><code class="language-">model = model_initiation(N=400,moveprob = 0.5, initial_infected=30);
 anim = @animate for i ∈ 1:200
   xs = [a.pos[1] for a in values(model.agents)];
   ys = [a.pos[2] for a in values(model.agents)];
@@ -108,4 +159,4 @@ anim = @animate for i ∈ 1:200
   step!(model, agent_step!, 1)
 end
 gif(anim, &quot;social_distancing0.5.gif&quot;, fps = 8);
-nothing #hide</code></pre><p><img src="social_distancing0.5.gif" alt/></p></article></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 23 March 2020 19:59">Monday 23 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+nothing #hide</code></pre><p><img src="social_distancing0.5.gif" alt/></p><p>The number of infected clearly reduces.</p></article></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 24 March 2020 12:24">Tuesday 24 March 2020</span>. Using Julia version 1.3.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
